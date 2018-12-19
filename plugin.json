@@ -1,0 +1,17 @@
+{
+	"slug": "Template",
+	"name": "Template",
+	"author": "VCV",
+	"license": "CC0-1.0",
+	"authorEmail": "contact@vcvrack.com",
+	"authorUrl": "https://vcvrack.com/",
+	"sourceUrl": "https://github.com/VCVRack/Template",
+	"version": "1.0.0",
+	"modules": {
+		"MyModule": {
+			"name": "MyModule",
+			"description": "A simple sine oscillator for demonstrating the Rack API",
+			"tags": ["VCO"]
+		}
+	}
+}
