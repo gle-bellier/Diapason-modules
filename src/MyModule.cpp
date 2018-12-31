@@ -86,8 +86,5 @@ struct MyModuleWidget : ModuleWidget {
 };
 
 
-// Specify the Module and ModuleWidget subclass, human-readable
-// author name for categorization per plugin, module slug (should never
-// change), human-readable module name, and any number of tags
-// (found in `include/tags.hpp`) separated by commas.
+// Define the Model with the Module type, ModuleWidget type, and module slug
 Model *modelMyModule = createModel<MyModule, MyModuleWidget>("MyModule");
