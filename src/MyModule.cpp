@@ -40,7 +40,7 @@ struct MyModule : Module {
 
 void MyModule::step() {
 	// Implement a simple sine oscillator
-	float deltaTime = context()->engine->getSampleRate();
+	float deltaTime = context()->engine->getSampleTime();
 
 	// Compute the frequency from the pitch parameter and input
 	float pitch = params[PITCH_PARAM].value;
