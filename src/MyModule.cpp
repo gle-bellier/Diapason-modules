@@ -27,7 +27,7 @@ struct MyModule : Module {
 		setup(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 		// Set parameter settings
-		params[PITCH_PARAM].setup(-3.f, 3.f, 0.f, "Pitch", " semi", 0.f, 12.f);
+		params[PITCH_PARAM].setup(-3.f, 3.f, 0.f, "Pitch", " semi", 2, 0.f, 12.f);
 	}
 	void step() override;
 
