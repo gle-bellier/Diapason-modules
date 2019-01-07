@@ -9,7 +9,7 @@
 	"version": "1.0.0",
 	"modules": {
 		"MyModule": {
-			"name": "MyModule",
+			"name": "My Module",
 			"description": "A simple sine oscillator for demonstrating the Rack API",
 			"tags": ["VCO"]
 		}

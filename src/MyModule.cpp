@@ -27,7 +27,7 @@ struct MyModule : Module {
 		setup(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 		// Set parameter settings
-		params[PITCH_PARAM].setup(-3.f, 3.f, 0.f, "Pitch", " semi", 2, 0.f, 12.f);
+		params[PITCH_PARAM].setup(-3.f, 3.f, 0.f, "Pitch", " semi", 0.f, 12.f);
 	}
 	void step() override;
 
@@ -56,13 +56,13 @@ void MyModule::step() {
 
 	// Compute the sine output
 	float sine = std::sin(2.f * M_PI * phase);
-	outputs[SINE_OUTPUT].value = 5.f * sine;
+	outputs[SINE_OUTPUT].setVoltage(5.f * sine);
 
 	// Blink light at 1Hz
 	blinkPhase += deltaTime;
 	if (blinkPhase >= 1.f)
 		blinkPhase -= 1.f;
-	lights[BLINK_LIGHT].value = (blinkPhase < 0.5f) ? 1.f : 0.f;
+	lights[BLINK_LIGHT].setBrightness(blinkPhase < 0.5f ? 1.f : 0.f);
 }
 
 
