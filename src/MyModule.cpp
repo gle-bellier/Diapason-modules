@@ -27,7 +27,7 @@ struct MyModule : Module {
 		setup(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 		// Set parameter settings
-		params[PITCH_PARAM].setup(-3.f, 3.f, 0.f, "Pitch", " semi", 0.f, 12.f);
+		params[PITCH_PARAM].setup(-3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
 	}
 	void step() override;
 
@@ -46,8 +46,8 @@ void MyModule::step() {
 	float pitch = params[PITCH_PARAM].value;
 	pitch += inputs[PITCH_INPUT].value;
 	pitch = clamp(pitch, -4.f, 4.f);
-	// The default pitch is C4
-	float freq = 261.626f * std::pow(2.f, pitch);
+	// The default pitch is C4 = 261.6256
+	float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
 
 	// Accumulate the phase
 	phase += freq * deltaTime;
