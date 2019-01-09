@@ -24,10 +24,11 @@ struct MyModule : Module {
 
 	MyModule() {
 		// Set the number of components
-		setup(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 		// Set parameter settings
-		params[PITCH_PARAM].setup(-3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
+		params[PITCH_PARAM].config(-3.f, 3.f, 0.f);
+		paramInfos[PITCH_PARAM].config("Pitch", " Hz", 2.f, dsp::FREQ_C4);
 	}
 	void step() override;
 
