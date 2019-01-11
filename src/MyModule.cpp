@@ -23,12 +23,11 @@ struct MyModule : Module {
 	float blinkPhase = 0.f;
 
 	MyModule() {
-		// Set the number of components
+		// Configure the module
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-		// Set parameter settings
-		params[PITCH_PARAM].config(-3.f, 3.f, 0.f);
-		paramInfos[PITCH_PARAM].config("Pitch", " Hz", 2.f, dsp::FREQ_C4);
+		// Configure parameters
+		params[PITCH_PARAM].config(-3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
 	}
 	void step() override;
 
@@ -52,8 +51,7 @@ void MyModule::step() {
 
 	// Accumulate the phase
 	phase += freq * deltaTime;
-	if (phase >= 1.f)
-		phase -= 1.f;
+	phase = std::fmod(phase, 1.f);
 
 	// Compute the sine output
 	float sine = std::sin(2.f * M_PI * phase);
@@ -61,8 +59,7 @@ void MyModule::step() {
 
 	// Blink light at 1Hz
 	blinkPhase += deltaTime;
-	if (blinkPhase >= 1.f)
-		blinkPhase -= 1.f;
+	blinkPhase = std::fmod(phase, 1.f);
 	lights[BLINK_LIGHT].setBrightness(blinkPhase < 0.5f ? 1.f : 0.f);
 }
 
