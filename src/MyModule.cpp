@@ -39,7 +39,7 @@ struct MyModule : Module {
 
 		// Compute the frequency from the pitch parameter and input
 		float pitch = params[PITCH_PARAM].getValue();
-		pitch += inputs[PITCH_INPUT].getValue();
+		pitch += inputs[PITCH_INPUT].getVoltage();
 		pitch = clamp(pitch, -4.f, 4.f);
 		// The default pitch is C4 = 261.6256
 		float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
@@ -50,7 +50,6 @@ struct MyModule : Module {
 
 		// Compute the sine output
 		float sine = std::sin(2.f * M_PI * phase);
-		outputs[SINE_OUTPUT].numChannels = 16;
 		outputs[SINE_OUTPUT].setVoltage(5.f * sine);
 
 		// Blink light at 1Hz
