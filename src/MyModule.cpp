@@ -67,7 +67,8 @@ struct MyModule : Module {
 
 
 struct MyModuleWidget : ModuleWidget {
-	MyModuleWidget(MyModule *module) : ModuleWidget(module) {
+	MyModuleWidget(MyModule *module) {
+		setModule(module);
 		setPanel(SVG::load(asset::plugin(plugin, "res/MyModule.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
