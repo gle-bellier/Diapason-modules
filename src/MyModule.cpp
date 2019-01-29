@@ -35,7 +35,7 @@ struct MyModule : Module {
 		// Implement a simple sine oscillator
 
 		// Get timestep duration
-		float deltaTime = app()->engine->getSampleTime();
+		float deltaTime = APP->engine->getSampleTime();
 
 		// Compute the frequency from the pitch parameter and input
 		float pitch = params[PITCH_PARAM].getValue();
