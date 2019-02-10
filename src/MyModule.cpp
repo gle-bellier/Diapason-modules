@@ -41,20 +41,24 @@ struct MyModule : Module {
 		float pitch = params[PITCH_PARAM].getValue();
 		pitch += inputs[PITCH_INPUT].getVoltage();
 		pitch = clamp(pitch, -4.f, 4.f);
-		// The default pitch is C4 = 261.6256
+		// The default pitch is C4 = 261.6256f
 		float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
 
 		// Accumulate the phase
 		phase += freq * deltaTime;
-		phase = std::fmod(phase, 1.f);
+		if (phase >= 0.5f)
+			phase -= 1.f;
 
 		// Compute the sine output
 		float sine = std::sin(2.f * M_PI * phase);
+		// Audio signals are typically +/-5V
+		// https://vcvrack.com/manual/VoltageStandards.html
 		outputs[SINE_OUTPUT].setVoltage(5.f * sine);
 
 		// Blink light at 1Hz
 		blinkPhase += deltaTime;
-		blinkPhase = std::fmod(blinkPhase, 1.f);
+		if (blinkPhase >= 1.f)
+			blinkPhase -= 1.f;
 		lights[BLINK_LIGHT].setBrightness(blinkPhase < 0.5f ? 1.f : 0.f);
 	}
 

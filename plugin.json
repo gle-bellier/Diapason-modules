@@ -10,7 +10,7 @@
 	"modules": {
 		"MyModule": {
 			"name": "My Module",
-			"description": "A simple sine oscillator for demonstrating the Rack API",
+			"description": "A simple sine oscillator for demonstrating the Rack SDK",
 			"tags": ["VCO"]
 		}
 	}
