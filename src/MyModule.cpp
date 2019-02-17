@@ -31,11 +31,8 @@ struct MyModule : Module {
 		params[PITCH_PARAM].config(-3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
 	}
 
-	void step() override {
+	void process(const ProcessArgs &args) override {
 		// Implement a simple sine oscillator
-
-		// Get timestep duration
-		float deltaTime = APP->engine->getSampleTime();
 
 		// Compute the frequency from the pitch parameter and input
 		float pitch = params[PITCH_PARAM].getValue();
@@ -45,7 +42,7 @@ struct MyModule : Module {
 		float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
 
 		// Accumulate the phase
-		phase += freq * deltaTime;
+		phase += freq * args.sampleTime;
 		if (phase >= 0.5f)
 			phase -= 1.f;
 
@@ -56,7 +53,7 @@ struct MyModule : Module {
 		outputs[SINE_OUTPUT].setVoltage(5.f * sine);
 
 		// Blink light at 1Hz
-		blinkPhase += deltaTime;
+		blinkPhase += args.sampleTime;
 		if (blinkPhase >= 1.f)
 			blinkPhase -= 1.f;
 		lights[BLINK_LIGHT].setBrightness(blinkPhase < 0.5f ? 1.f : 0.f);
