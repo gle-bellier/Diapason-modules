@@ -28,7 +28,7 @@ struct MyModule : Module {
 
 		// Configure parameters
 		// See engine/Param.hpp for config() arguments
-		params[PITCH_PARAM].config(-3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
+		configParam(PITCH_PARAM, -3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
 	}
 
 	void process(const ProcessArgs &args) override {
