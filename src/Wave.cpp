@@ -31,32 +31,38 @@ struct Wave : Module {
 		BLINK_LIGHT,
 		NUM_LIGHTS
 	};
-
 	float phase = 0.f;
 	float blinkPhase = 0.f;
-
-
-
 
 	Wave() {
 		// Configure the module
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-
 		// Configure parameters
 		// See engine/Param.hpp for config() arguments
-		//configParam(PITCH_PARAM, -3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
+		configParam(PITCH_PARAM, -3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
 		configParam(SHAPE_PARAM, 0.f, 1.f, 0.f, "Shape", "Type");
 		configParam(DIST_PARAM, 0.f, 1.f, 0.f, "Dist", " Amp");
 		configParam(AN_PARAM, 0.f, 1.f, 0.f, "Analog mode");
-
-
+		configParam(FM_PARAM, 0.f, 1.f, 0.f, "FM modulation");
 	}
-
 	void process(const ProcessArgs &args) override {
-		// Implement a simple sine oscillator
+		// get value of parameter
+		float freq = params[PITCH_PARAM].getValue();
+		float shape = params[SHAPE_PARAM].getValue();
+		float distType = params[AN_PARAM].getValue();
+		float distAmount = 1.f - params[DIST_PARAM].getValue(); //
+		float fmAmount = params[FM_PARAM].getValue();
+
+		float pitch = inputs[PITCH_INPUT].getVoltage();
+		float cvShape = inputs[CVSHAPE_INPUT].getVoltage();
+		float cvDist = inputs[CVDIST_INPUT].getVoltage();
+
 
 		// Compute the frequency from the pitch parameter and input
-		float pitch = params[PITCH_PARAM].getValue();
+
+
+
+
 		pitch += inputs[PITCH_INPUT].getVoltage();
 		pitch = clamp(pitch, -4.f, 4.f);
 		// The default pitch is C4 = 261.6256f
@@ -67,11 +73,6 @@ struct Wave : Module {
 		if (phase >= 0.5f)
 			phase -= 1.f;
 
-		float octAmp = params[SHAPE_PARAM].getValue();
-		float cvShape = inputs[CVSHAPE_INPUT].getVoltage();
-		float dist = 5.f - params[DIST_PARAM].getValue();
-		float cvDist = inputs[CVDIST_INPUT].getVoltage();
-		float analogique = params[AN_PARAM].getValue();
 
 		// Compute the sine output
 		octAmp = clamp(octAmp+cvShape,0.f,1.f);
@@ -99,11 +100,6 @@ struct Wave : Module {
 			blinkPhase -= 1.f;
 		lights[BLINK_LIGHT].setBrightness(blinkPhase < 0.5f ? 1.f : 0.f);
 	}
-
-	// For more advanced Module features, see engine/Module.hpp in the Rack API.
-	// - dataToJson, dataFromJson: serialization of internal data
-	// - onSampleRateChange: event triggered by a change of sample rate
-	// - onReset, onRandomize: implements custom behavior requested by the user
 };
 
 
