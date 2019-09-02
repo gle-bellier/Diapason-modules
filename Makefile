@@ -2,7 +2,7 @@
 RACK_DIR ?= ../..
 
 # FLAGS will be passed to both the C and C++ compiler
-SLUG = Erik Modules
+SLUG = ErikModules
 VERSION = 0.6.0
 
 FLAGS +=

@@ -6,7 +6,7 @@ Plugin *pluginInstance;
 
 void init(Plugin *p) {
 	pluginInstance = p;
-	p->slug = TOSTRING(SLUG);
+	//p->slug = TOSTRING(SLUG);
 	// Add all Models defined throughout the plugin
 	p->addModel(modelWave);
 		// Any other plugin initialization may go here.
