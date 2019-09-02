@@ -8,8 +8,9 @@ using namespace std;
 struct Wave : Module {
 	enum ParamId {
 		PITCH_PARAM,
-		OCT_PARAM,
 		DIST_PARAM,
+		SHAPE_PARAM,
+		FM_PARAM,
 		AN_PARAM,
 		NUM_PARAMS
 
@@ -18,6 +19,8 @@ struct Wave : Module {
 		PITCH_INPUT,
 		CVDIST_INPUT,
 		CVSHAPE_INPUT,
+		FM_INPUT,
+		CVFM_INPUT,
 		NUM_INPUTS
 	};
 	enum OutputId {
@@ -42,8 +45,8 @@ struct Wave : Module {
 		// Configure parameters
 		// See engine/Param.hpp for config() arguments
 		//configParam(PITCH_PARAM, -3.f, 3.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
-		configParam(OCT_PARAM, 0.f, 1.f, 0.f, "Oct", " Hz", 2.f, dsp::FREQ_C4);
-		configParam(DIST_PARAM, 0.f, 5.f, 0.f, "Dist", " Amp");
+		configParam(SHAPE_PARAM, 0.f, 1.f, 0.f, "Shape", "Type");
+		configParam(DIST_PARAM, 0.f, 1.f, 0.f, "Dist", " Amp");
 		configParam(AN_PARAM, 0.f, 1.f, 0.f, "Analog mode");
 
 
@@ -64,7 +67,7 @@ struct Wave : Module {
 		if (phase >= 0.5f)
 			phase -= 1.f;
 
-		float octAmp = params[OCT_PARAM].getValue();
+		float octAmp = params[SHAPE_PARAM].getValue();
 		float cvShape = inputs[CVSHAPE_INPUT].getVoltage();
 		float dist = 5.f - params[DIST_PARAM].getValue();
 		float cvDist = inputs[CVDIST_INPUT].getVoltage();
@@ -115,15 +118,17 @@ struct WaveWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 		addParam(createParam<Rogan2PWhite>(Vec(85, 310), module, Wave::PITCH_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(30, 85), module, Wave::OCT_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(30, 85), module, Wave::SHAPE_PARAM));
 		addParam(createParam<Rogan2PWhite>(Vec(30, 190), module, Wave::DIST_PARAM));
-
+		addParam(createParam<Rogan2PWhite>(Vec(85, 250), module, Wave::FM_PARAM));
 		addParam(createParam<CKSS>(Vec(43.5f, 271), module, Wave::AN_PARAM));
+
 
 		addInput(createInput<PJ301MPort>(Vec(135, 100), module, Wave::CVSHAPE_INPUT));
 		addInput(createInput<PJ301MPort>(Vec(135, 180), module, Wave::CVDIST_INPUT));
 		addInput(createInput<PJ301MPort>(Vec(32, 335), module, Wave::PITCH_INPUT));
-
+		addInput(createInput<PJ301MPort>(Vec(134, 255), module, Wave::FM_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(134, 295), module, Wave::CVFM_INPUT));
 
 		addOutput(createOutput<PJ301MPort>(Vec(134, 335), module, Wave::SINE_OUTPUT));
 
