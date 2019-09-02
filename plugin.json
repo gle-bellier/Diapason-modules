@@ -1,5 +1,5 @@
 {
-	"slug": "WaveModule",
+	"slug": "Erik Modules",
 	"name": "Wave",
 	"version": "1.0.0",
 	"license": "CC0-1.0",
@@ -9,7 +9,7 @@
 	"sourceUrl": "",
 	"modules": [
 		{
-			"slug": "WaveModule",
+			"slug": "Erik Modules",
 			"name": "Wave",
 			"description": "Wave maker for rich sounds",
 			"tags": ["VCO"]
