@@ -1,17 +1,17 @@
 {
-	"slug": "Template",
-	"name": "Template",
+	"slug": "WaveModule",
+	"name": "Wave",
 	"version": "1.0.0",
 	"license": "CC0-1.0",
-	"author": "VCV",
-	"authorEmail": "contact@vcvrack.com",
-	"authorUrl": "https://vcvrack.com/",
-	"sourceUrl": "https://github.com/VCVRack/Template",
+	"author": "Erik",
+	"authorEmail": "",
+	"authorUrl": "",
+	"sourceUrl": "",
 	"modules": [
 		{
-			"slug": "MyModule",
-			"name": "My Module",
-			"description": "A simple sine oscillator for demonstrating the Rack SDK",
+			"slug": "WaveModule",
+			"name": "Wave",
+			"description": "Wave maker for rich sounds",
 			"tags": ["VCO"]
 		}
 	]

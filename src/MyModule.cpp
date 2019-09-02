@@ -5,7 +5,7 @@
 
 using namespace std;
 
-struct MyModule : Module {
+struct Wave : Module {
 	enum ParamId {
 		PITCH_PARAM,
 		OCT_PARAM,
@@ -32,7 +32,10 @@ struct MyModule : Module {
 	float phase = 0.f;
 	float blinkPhase = 0.f;
 
-	MyModule() {
+
+
+
+	Wave() {
 		// Configure the module
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
@@ -74,7 +77,7 @@ struct MyModule : Module {
 		// Audio signals are typically +/-5V
 		// https://vcvrack.com/manual/VoltageStandards.html
 		sine = 5.f * sine * (1.f/(1.f + octAmp));
-		float d = abs(sine);
+		float d = (abs(sine)+2.f)*2.f;
 		if (d >=dist){
 			if (analogique>=1.f){
 				sine = 5.f * sine/d;
@@ -84,12 +87,6 @@ struct MyModule : Module {
 			}
 
 		}
-
-
-
-
-
-
 
 		outputs[SINE_OUTPUT].setVoltage(sine);
 
@@ -107,33 +104,33 @@ struct MyModule : Module {
 };
 
 
-struct MyModuleWidget : ModuleWidget {
-	MyModuleWidget(MyModule *module) {
+struct WaveWidget : ModuleWidget {
+	WaveWidget(Wave *module) {
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/MyModule.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Wave.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParam<Rogan2PWhite>(Vec(85, 310), module, MyModule::PITCH_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(30, 85), module, MyModule::OCT_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(30, 190), module, MyModule::DIST_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(85, 310), module, Wave::PITCH_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(30, 85), module, Wave::OCT_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(30, 190), module, Wave::DIST_PARAM));
 
-		addParam(createParam<CKSS>(Vec(43.5f, 271), module, MyModule::AN_PARAM));
+		addParam(createParam<CKSS>(Vec(43.5f, 271), module, Wave::AN_PARAM));
 
-		addInput(createInput<PJ301MPort>(Vec(135, 100), module, MyModule::CVSHAPE_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(135, 180), module, MyModule::CVDIST_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(32, 335), module, MyModule::PITCH_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(135, 100), module, Wave::CVSHAPE_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(135, 180), module, Wave::CVDIST_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(32, 335), module, Wave::PITCH_INPUT));
 
 
-		addOutput(createOutput<PJ301MPort>(Vec(134, 335), module, MyModule::SINE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(134, 335), module, Wave::SINE_OUTPUT));
 
-		addChild(createLight<MediumLight<RedLight>>(Vec(41, 59), module, MyModule::BLINK_LIGHT));
+		addChild(createLight<MediumLight<RedLight>>(Vec(41, 59), module, Wave::BLINK_LIGHT));
 	}
 };
 
 
 // Define the Model with the Module type, ModuleWidget type, and module slug
-Model *modelMyModule = createModel<MyModule, MyModuleWidget>("MyModule");
+Model *modelWave = createModel<Wave, WaveWidget>("Wave");
