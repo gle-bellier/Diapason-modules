@@ -81,7 +81,8 @@ struct Wave : Module {
 		//want to add some distorsion
 
 		distAmount = 0.5f*clamp(distAmount+distCV,0.f,10.f); // distAmount included between 0 and 5
-		float thold = 5.f-1.5f*distAmount; // times 1.5 because we want to use it to make pulse width parameter
+		float thold = 5.f-(5.f/3.f)*distAmount; // times (5/3) because we want to use it to make pulse width parameter
+
 		float d = abs(outSignal);
 		if (d >= thold){
 			if (distType>=1.f){
@@ -90,11 +91,14 @@ struct Wave : Module {
 			else{
 				outSignal = (outSignal/d) * (4.5f  + 0.5f * std::sin(5.f * M_PI * phase));
 			}
-
+		}
+		if (thold<0){
+			float pulseWidth = 0.6f-0.20f*distAmount;
+			outSignal = simd::ifelse(phase < pulseWidth, abs(outSignal), -abs(outSignal));
 		}
 		outputs[SINE_OUTPUT].setVoltage(outSignal);
 
-		// Blink light at 1Hz
+		//Blink light at 1Hz
 		blinkPhase += args.sampleTime;
 		if (blinkPhase >= 1.f)
 			blinkPhase -= 1.f;
