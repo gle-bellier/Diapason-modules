@@ -40,7 +40,7 @@ struct Wave : Module {
 		// Configure parameters
 		// See engine/Param.hpp for config() arguments
 		configParam(PITCH_PARAM, -1.f, 1.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
-		configParam(SHAPE_PARAM, 0.f, 1.f, 0.f, "Shape", "Type");
+		configParam(SHAPE_PARAM, 0.f, 10.f, 0.f, "Shape", "Type");
 		configParam(DIST_PARAM, 0.f, 1.f, 0.f, "Dist", " Amp");
 		configParam(AN_PARAM, 0.f, 1.f, 0.f, "Analog mode");
 		configParam(FM_PARAM, 0.f, 1.f, 0.f, "FM modulation");
@@ -50,7 +50,7 @@ struct Wave : Module {
 		float frequency = params[PITCH_PARAM].getValue();
 		float shape = params[SHAPE_PARAM].getValue();
 		float distType = params[AN_PARAM].getValue();
-		float distAmount = 1.f - params[DIST_PARAM].getValue(); //
+		float distAmount = params[DIST_PARAM].getValue(); //
 		float fmAmount = params[FM_PARAM].getValue();
 
 		float pitch = inputs[PITCH_INPUT].getVoltage();
@@ -72,11 +72,13 @@ struct Wave : Module {
 		if (phase >= 0.5f)
 			phase -= 1.f;
 
-
 		// Compute the sine output
+		float outSignal = 5*std::sin(2.f * M_PI * phase);
+		shape = 0.5f*clamp(shape + shapeCV, 0.f,10.f);
+		outSignal+= shape*std::sin(1.f * M_PI * phase);
+		outSignal = outSignal * (1.f/(1.f + shape/5.f)); // in order to normalize the output to -5V/5V
 		//octAmp = clamp(octAmp+cvShape,0.f,1.f);
 		//dist = clamp(dist+cvDist,0.f,5.f);
-		float sine = std::sin(2.f * M_PI * phase); //+  octAmp * std::sin(1.f * M_PI * phase);
 		/*sine = 5.f * sine * (1.f/(1.f + octAmp));
 		float d = (abs(sine)+2.f)*2.f;
 		if (d >=dist){
@@ -89,7 +91,7 @@ struct Wave : Module {
 
 		}
 		*/
-		outputs[SINE_OUTPUT].setVoltage(sine);
+		outputs[SINE_OUTPUT].setVoltage(outSignal);
 
 		// Blink light at 1Hz
 		blinkPhase += args.sampleTime;
