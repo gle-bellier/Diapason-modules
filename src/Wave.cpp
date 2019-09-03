@@ -74,10 +74,10 @@ struct Wave : Module {
 
 		// Compute the sine output
 		float outSignal = 5*std::sin(2.f * M_PI * phase);
-		shape = 0.5f*clamp(shape + shapeCV, 0.f,10.f);
+		shape = 0.5f*clamp(shape + shapeCV - 5.f, 0.f,10.f); // -5 because of uni mode LFO delivering 0-10
 		outSignal+= shape*std::sin(1.f * M_PI * phase);
 		outSignal = outSignal * (1.f/(1.f + shape/5.f)); // in order to normalize the output to -5V/5V
-		//octAmp = clamp(octAmp+cvShape,0.f,1.f);
+
 		//dist = clamp(dist+cvDist,0.f,5.f);
 		/*sine = 5.f * sine * (1.f/(1.f + octAmp));
 		float d = (abs(sine)+2.f)*2.f;
