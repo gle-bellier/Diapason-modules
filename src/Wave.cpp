@@ -39,7 +39,7 @@ struct Wave : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		// Configure parameters
 		// See engine/Param.hpp for config() arguments
-		configParam(PITCH_PARAM, -2.f, 0.f, 2.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
+		configParam(PITCH_PARAM, -1.f, 1.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
 		configParam(SHAPE_PARAM, 0.f, 1.f, 0.f, "Shape", "Type");
 		configParam(DIST_PARAM, 0.f, 1.f, 0.f, "Dist", " Amp");
 		configParam(AN_PARAM, 0.f, 1.f, 0.f, "Analog mode");
@@ -64,7 +64,8 @@ struct Wave : Module {
 
 
 		// The default pitch is C4 = 261.6256f
-		float freq = dsp::FREQ_C4 * std::pow(2.f, pitch) * std::pow(2.f,frequency);
+		pitch +=frequency;
+		float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
 
 		// Accumulate the phase
 		phase += freq * args.sampleTime;
