@@ -93,8 +93,13 @@ struct Wave : Module {
 			}
 		}
 		if (thold<0){
+			float psPhase = phase+0.5f;
+			if (psPhase >= 0.5f)
+				psPhase -= 1.f;
 			float pulseWidth = 0.6f-0.20f*distAmount;
-			outSignal = simd::ifelse(phase < pulseWidth, abs(outSignal), -abs(outSignal));
+			if (psPhase>=pulseWidth and outSignal>=0){			//has to be changed
+				outSignal = -outSignal;
+			}
 		}
 		outputs[SINE_OUTPUT].setVoltage(outSignal);
 
