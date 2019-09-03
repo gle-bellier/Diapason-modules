@@ -41,7 +41,7 @@ struct Wave : Module {
 		// See engine/Param.hpp for config() arguments
 		configParam(PITCH_PARAM, -1.f, 1.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
 		configParam(SHAPE_PARAM, 0.f, 10.f, 0.f, "Shape", "Type");
-		configParam(DIST_PARAM, 0.f, 1.f, 0.f, "Dist", " Amp");
+		configParam(DIST_PARAM, 0.f, 10.f, 0.f, "Dist", " Amp");
 		configParam(AN_PARAM, 0.f, 1.f, 0.f, "Analog mode");
 		configParam(FM_PARAM, 0.f, 1.f, 0.f, "FM modulation");
 	}
@@ -72,25 +72,26 @@ struct Wave : Module {
 		if (phase >= 0.5f)
 			phase -= 1.f;
 
-		// Compute the sine output
+		// Compute the sine output and shape parameter
 		float outSignal = 5*std::sin(2.f * M_PI * phase);
 		shape = 0.5f*clamp(shape + shapeCV - 5.f, 0.f,10.f); // -5 because of uni mode LFO delivering 0-10
 		outSignal+= shape*std::sin(1.f * M_PI * phase);
 		outSignal = outSignal * (1.f/(1.f + shape/5.f)); // in order to normalize the output to -5V/5V
 
-		//dist = clamp(dist+cvDist,0.f,5.f);
-		/*sine = 5.f * sine * (1.f/(1.f + octAmp));
-		float d = (abs(sine)+2.f)*2.f;
-		if (d >=dist){
-			if (analogique>=1.f){
-				sine = 5.f * sine/d;
+		//want to add some distorsion
+
+		distAmount = 0.5f*clamp(distAmount+distCV,0.f,10.f); // distAmount included between 0 and 5
+		float thold = 5.f-1.5f*distAmount; // times 1.5 because we want to use it to make pulse width parameter
+		float d = abs(outSignal);
+		if (d >= thold){
+			if (distType>=1.f){
+				outSignal = 5.f * outSignal/d;
 			}
 			else{
-				sine = (sine/d) * (5.f  + 0.5f * std::sin(5.f * M_PI * phase) * (1-analogique));
+				outSignal = (outSignal/d) * (4.5f  + 0.5f * std::sin(5.f * M_PI * phase));
 			}
 
 		}
-		*/
 		outputs[SINE_OUTPUT].setVoltage(outSignal);
 
 		// Blink light at 1Hz
