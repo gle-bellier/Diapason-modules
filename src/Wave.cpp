@@ -66,6 +66,7 @@ struct Wave : Module {
 		// The default pitch is C4 = 261.6256f
 		pitch +=frequency;
 		float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
+		freq += fmIn*fmAmount;
 
 		// Accumulate the phase
 		phase += freq * args.sampleTime;
@@ -115,14 +116,14 @@ struct Wave : Module {
 struct WaveWidget : ModuleWidget {
 	WaveWidget(Wave *module) {
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Wave.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Wave2.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParam<Rogan2PWhite>(Vec(85, 310), module, Wave::PITCH_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(30, 80), module, Wave::PITCH_PARAM));
 		addParam(createParam<Rogan2PWhite>(Vec(30, 85), module, Wave::SHAPE_PARAM));
 		addParam(createParam<Rogan2PWhite>(Vec(30, 190), module, Wave::DIST_PARAM));
 		addParam(createParam<Rogan2PWhite>(Vec(85, 250), module, Wave::FM_PARAM));
