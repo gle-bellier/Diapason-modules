@@ -57,7 +57,7 @@ struct Wave : Module {
 		float shapeCV = inputs[CVSHAPE_INPUT].getVoltage();
 		float distCV = inputs[CVDIST_INPUT].getVoltage();
 		float fmCV = inputs[CVFM_INPUT].getVoltage();
-		float fmIn = inputs[CVFM_INPUT].getVoltage();
+		float fmIn = inputs[FM_INPUT].getVoltage();
 
 
 		// Compute the frequency from the pitch parameter and input
@@ -65,8 +65,11 @@ struct Wave : Module {
 
 		// The default pitch is C4 = 261.6256f
 		pitch +=frequency;
+		if (inputs[FM_INPUT].isConnected()) {
+			pitch += fmIn*(fmAmount+fmCV);
+		}
+
 		float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
-		freq += fmIn*fmAmount;
 
 		// Accumulate the phase
 		phase += freq * args.sampleTime;
@@ -123,20 +126,20 @@ struct WaveWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParam<Rogan2PWhite>(Vec(30, 80), module, Wave::PITCH_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(30, 85), module, Wave::SHAPE_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(30, 190), module, Wave::DIST_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(85, 250), module, Wave::FM_PARAM));
-		addParam(createParam<CKSS>(Vec(43.5f, 271), module, Wave::AN_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(28, 82), module, Wave::PITCH_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(180, 350), module, Wave::SHAPE_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(28, 120), module, Wave::DIST_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(200, 120), module, Wave::FM_PARAM));
+		addParam(createParam<CKSS>(Vec(87.5f, 271), module, Wave::AN_PARAM));
 
 
-		addInput(createInput<PJ301MPort>(Vec(135, 100), module, Wave::CVSHAPE_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(135, 180), module, Wave::CVDIST_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(32, 335), module, Wave::PITCH_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(134, 255), module, Wave::FM_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(134, 295), module, Wave::CVFM_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(90, 350), module, Wave::CVSHAPE_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(30, 350), module, Wave::CVDIST_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(20, 40), module, Wave::PITCH_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(200, 115), module, Wave::FM_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(180, 160), module, Wave::CVFM_INPUT));
 
-		addOutput(createOutput<PJ301MPort>(Vec(134, 335), module, Wave::SINE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(220, 35), module, Wave::SINE_OUTPUT));
 
 		addChild(createLight<MediumLight<RedLight>>(Vec(41, 59), module, Wave::BLINK_LIGHT));
 	}
