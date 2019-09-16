@@ -5,7 +5,7 @@
 
 using namespace std;
 
-struct Wave : Module {
+struct Substract : Module {
 	enum ParamId {
 		PITCH_PARAM,
 		DIST_PARAM,
@@ -24,7 +24,7 @@ struct Wave : Module {
 	};
 	enum OutputId {
 		SINE_OUTPUT,
-		NUM_OUTPUTSpyqtSlot
+		NUM_OUTPUTS
 	};
 	enum LightId {
 		BLINK_LIGHT,
@@ -33,7 +33,7 @@ struct Wave : Module {
 	float phase = 0.f;
 	float blinkPhase = 0.f;
 
-	Wave() {
+	Substract() {
 		// Configure the module
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		// Configure parameters
@@ -114,34 +114,34 @@ struct Wave : Module {
 };
 
 
-struct WaveWidget : ModuleWidget {
-	WaveWidget(Wave *module) {
+struct SubstractWidget : ModuleWidget {
+	SubstractWidget(Substract *module) {
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Wave2.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Substract2.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParam<Rogan2PWhite>(Vec(28, 82), module, Wave::PITCH_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(180, 350), module, Wave::SHAPE_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(28, 120), module, Wave::DIST_PARAM));
-		addParam(createParam<Rogan2PWhite>(Vec(200, 120), module, Wave::FM_PARAM));
-		addParam(createParam<CKSS>(Vec(87.5f, 271), module, Wave::AN_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(28, 82), module, Substract::PITCH_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(180, 350), module, Substract::SHAPE_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(28, 120), module, Substract::DIST_PARAM));
+		addParam(createParam<Rogan2PWhite>(Vec(200, 120), module, Substract::FM_PARAM));
+		addParam(createParam<CKSS>(Vec(87.5f, 271), module, Substract::AN_PARAM));
 
 
-		addInput(createInput<PJ301MPort>(Vec(90, 350), module, Wave::CVSHAPE_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(30, 350), module, Wave::CVDIST_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(20, 40), module, Wave::PITCH_INPUT));
-		addInput(createInput<PJ301MPort>(Vec(200, 115), module, Wave::FM_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(90, 350), module, Substract::CVSHAPE_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(30, 350), module, Substract::CVDIST_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(20, 40), module, Substract::PITCH_INPUT));
+		addInput(createInput<PJ301MPort>(Vec(200, 115), module, Substract::FM_INPUT));
 
-		addOutput(createOutput<PJ301MPort>(Vec(220, 35), module, Wave::SINE_OUTPUT));
+		addOutput(createOutput<PJ301MPort>(Vec(220, 35), module, Substract::SINE_OUTPUT));
 
-		addChild(createLight<MediumLight<RedLight>>(Vec(41, 59), module, Wave::BLINK_LIGHT));
+		addChild(createLight<MediumLight<RedLight>>(Vec(41, 59), module, Substract::BLINK_LIGHT));
 	}
 };
 
 
 // Define the Model with the Module type, ModuleWidget type, and module slug
-Model *modelWave = createModel<Wave, WaveWidget>("Wave");
+Model *soundSubst = createModel<Substract, SubstractWidget>("Substract");
