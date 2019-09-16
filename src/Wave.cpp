@@ -24,7 +24,7 @@ struct Wave : Module {
 	};
 	enum OutputId {
 		SINE_OUTPUT,
-		NUM_OUTPUTSpyqtSlot
+		NUM_OUTPUTS
 	};
 	enum LightId {
 		BLINK_LIGHT,
