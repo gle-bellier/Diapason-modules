@@ -91,7 +91,7 @@ struct Wave : Module {
 				outSignal = 5.f * outSignal/d;
 			}
 			else{
-				outSignal = (outSignal/d) * (4.5f  + 0.25f * (std::sin(5.f * M_PI * phase)+std::sin(7.f * M_PI * phase)));
+				outSignal = (outSignal/d) * (4.4f  + 0.20f * (std::sin(5.f * M_PI * phase)+std::sin(7.f * M_PI * phase)+std::sin(7.f * M_PI * phase)));
 			}
 		}
 		if (thold<0){
