@@ -13,6 +13,13 @@
 			"name": "Wave",
 			"description": "Wave maker for rich sounds",
 			"tags": ["VCO"]
+		},
+		{
+			"slug": "Substract",
+			"name": "Substract",
+			"description": "Filter with frequency substraction",
+			"tags": ["filter"]
 		}
+
 	]
 }

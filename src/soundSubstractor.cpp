@@ -117,7 +117,7 @@ struct Substract : Module {
 struct SubstractWidget : ModuleWidget {
 	SubstractWidget(Substract *module) {
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Substractor.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Substract2.svg")));
 
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
