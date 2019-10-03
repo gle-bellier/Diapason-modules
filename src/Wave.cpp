@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <ctime>
 
 using namespace std;
 
@@ -89,7 +90,6 @@ struct Wave : Module {
 
 		float anOut = outSignal;
 		float dgtOut = outSignal;
-
 		float d = abs(outSignal);
 		if (d >= thold){
 				dgtOut = 5.f * outSignal/d;
