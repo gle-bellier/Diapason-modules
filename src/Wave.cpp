@@ -126,7 +126,7 @@ struct WaveWidget : ModuleWidget {
 		addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 		addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-		addParam(createParam<RoundHugeBlackKnob>(Vec(45, 55), module, Wave::PITCH_PARAM));
+		addParam(createParam<RoundHugeBlackKnob>(Vec(49, 55), module, Wave::PITCH_PARAM));
 		addParam(createParam<Rogan1PWhite>(Vec(25, 152), module, Wave::FINE_PARAM));
 		addParam(createParam<Rogan1PWhite>(Vec(93, 152), module, Wave::FM_PARAM));
 
