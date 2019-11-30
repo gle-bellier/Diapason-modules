@@ -1,9 +1,10 @@
 {
-	"slug": "ErikModules",
+	"slug": "DiapasonModules",
 	"name": "Wave",
 	"version": "1.0.0",
 	"license": "CC0-1.0",
 	"author": "Erik",
+	"brand": "Diapason",
 	"authorEmail": "",
 	"authorUrl": "",
 	"sourceUrl": "",
@@ -12,7 +13,7 @@
 			"slug": "Wave",
 			"name": "Wave",
 			"description": "Wave maker for rich sounds",
-			"tags": ["VCO"]
+			"tags": ["VCO","Polyphonic"]
 		},
 		{
 			"slug": "Substract",

@@ -120,7 +120,7 @@ struct Wave : Module {
 		// Configure parameters
 		// See engine/Param.hpp for config() arguments
 		configParam(PITCH_PARAM, -1.f, 1.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
-		configParam(FINE_PARAM, -100.f, 0.f, 100.f, "Fine","cts");
+		configParam(FINE_PARAM, -100.f, 100.f, 0.f, "Fine","cts");
 		configParam(SHAPE_PARAM, 0.f, 20.f, 0.f, "Shape", "Type");
 		configParam(DIST_PARAM, 0.f, 10.f, 0.f, "Dist", " Amp");
 		configParam(FM_PARAM, 0.f, 1.f, 0.f, "FM modulation");
@@ -154,7 +154,7 @@ struct Wave : Module {
 			oscillator->channels = std::min(channels - c, 4);
 
 			pitch += frequency;
-			pitch += fine/1000;
+			pitch += fine/1200;
 			if (inputs[FM_INPUT].isConnected()) {
 				pitch += fmAmount * fmIn;
 			}
