@@ -6,50 +6,50 @@
 
 using simd::float_4;
 
-template <int OVERSAMPLE, int QUALITY, typename T>
+template <int OVERSAMPLE, int QUALITY>
 struct VCO {
 			// Compute the sine output and shape parameter
 			int channels = 0;
-			T freq;
-			T phase = 0.f;
-			T anlValue = 0.f;
-			T dgtValue = 0.f;
-			T outSignal;
-			T shape;
-			T shapeCV;
-			T distAmount;
-			T thold;
+			float freq;
+			float phase = 0.f;
+			float anlValue = 0.f;
+			float dgtValue = 0.f;
+			float outSignal;
+			float shape;
+			float shapeCV;
+			float distAmount;
+			float thold;
 
-			void setPitch(T pitch) {
+			void setPitch(float pitch) {
 				freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
 			}
 			void process(float deltaTime){
 					for (int i=0; i<4;i+=1){
-						phase[i] += freq[i] * deltaTime;
-						if (phase[i] >= 0.5f)
-							phase[i] -= 1.f;
-						outSignal[i] = 5*std::sin(2.f * M_PI * phase[i]);
-						shape[i] = 0.5f*clamp(shape[i] + shapeCV[i] - 5.f, 0.f,10.f); // -5 because of uni mode LFO delivering 0-10
-						outSignal[i]+= shape[i]*std::sin(1.f * M_PI * phase[i]);
-						outSignal[i] = outSignal[i] * (1.f/(1.f + shape[i]/5.f)); // in order to normalize the output to -5V/5V
+						phase += freq * deltaTime;
+						if (phase >= 0.5f)
+							phase -= 1.f;
+						outSignal = 5*std::sin(2.f * M_PI * phase);
+						shape = 0.5f*clamp(shape + shapeCV - 5.f, 0.f,10.f); // -5 because of uni mode LFO delivering 0-10
+						outSignal+= shape*std::sin(1.f * M_PI * phase);
+						outSignal = outSignal * (1.f/(1.f + shape/5.f)); // in order to normalize the output to -5V/5V
 
-				dgtValue[i]=outSignal[i];
-				anlValue[i]=outSignal[i];
+				dgtValue=outSignal;
+				anlValue=outSignal;
 
 
-					float d = abs(outSignal[i]);
-					if (d >= thold[i]) 	{
-						dgtValue[i] = 5.f * outSignal[i]/d;
-						anlValue[i] = (outSignal[i]/d) * (4.4f  + 0.20f * (std::sin(5.f * M_PI * phase[i])+std::sin(7.f * M_PI * phase[i])+std::sin(7.f * M_PI * phase[i])));
+					float d = abs(outSignal);
+					if (d >= thold) 	{
+						dgtValue = 5.f * outSignal/d;
+						anlValue = (outSignal/d) * (4.4f  + 0.20f * (std::sin(5.f * M_PI * phase)+std::sin(7.f * M_PI * phase)+std::sin(13.f * M_PI * phase)));
 					}
-					if (thold[i]<0){
-						float psPhase = phase[i]+0.5f;
+					if (thold<0){
+						float psPhase = phase+0.5f;
 						if (psPhase >= 0.5f)
 							psPhase -= 1.f;
-						float pulseWidth = 0.6f-0.20f*distAmount[i];
-						if (psPhase>=pulseWidth and outSignal[i]>=0){			//modification of output signal when above pulsewidth
-							dgtValue[i] = -dgtValue[i];
-							anlValue[i] = anlValue[i]-9.f;
+						float pulseWidth = 0.6f-0.20f*distAmount;
+						if (psPhase>=pulseWidth and outSignal>=0){			//modification of output signal when above pulsewidth
+							dgtValue = -dgtValue;
+							anlValue = anlValue-9.f;
 						}
 					}
 				}
@@ -67,10 +67,10 @@ struct VCO {
 			// }
 
 
-			T dgt() {
+			float dgt() {
 				return dgtValue;
 			}
-			T anl() {
+			float anl() {
 				return anlValue;
 			}
 };
@@ -112,7 +112,7 @@ struct Wave : Module {
 
 
 
-	VCO<16, 16, float_4>oscillators[4];
+	VCO<16,16> oscillators[16];
 
 	Wave() {
 		// Configure the module
@@ -131,18 +131,18 @@ struct Wave : Module {
 		float fine = params[FINE_PARAM].getValue();
 		float fmAmount = params[FM_PARAM].getValue();
 		float shape = params[SHAPE_PARAM].getValue();
-		float distAmount = params[DIST_PARAM].getValue();
+		float distAmount0 = params[DIST_PARAM].getValue();
 
 
 
 
 		int channels = std::max(inputs[PITCH_INPUT].getChannels(), 1);
 
-		for (int c = 0; c < channels;c+=4){
-			float_4 shapeCV = inputs[CVSHAPE_INPUT].getPolyVoltageSimd<float_4>(c);
-			float_4 pitch = inputs[PITCH_INPUT].getPolyVoltageSimd<float_4>(c);
-			float_4 fmIn = inputs[FM_INPUT].getPolyVoltageSimd<float_4>(c);
-			float_4 cvDist = inputs[CVDIST_INPUT].getPolyVoltageSimd<float_4>(c);
+		for (int c = 0; c < channels;c++){
+			float shapeCV = inputs[CVSHAPE_INPUT].getPolyVoltage(c);
+			float pitch = inputs[PITCH_INPUT].getPolyVoltage(c);
+			float fmIn = inputs[FM_INPUT].getPolyVoltage(c);
+			float cvDist = inputs[CVDIST_INPUT].getPolyVoltage(c);
 
 			// float pitch = pitch4[0];
 			// float shapeCV = shapeCV4[0];
@@ -150,8 +150,8 @@ struct Wave : Module {
 			// float fmIn = fmIn4[0];
 
 
-			auto *oscillator = &oscillators[c / 4];
-			oscillator->channels = std::min(channels - c, 4);
+			auto *oscillator = &oscillators[c];
+			oscillator->channels = c;
 
 			pitch += frequency;
 			pitch += fine/1200;
@@ -164,14 +164,12 @@ struct Wave : Module {
 			// 		std::cout<<"shape -> "<< a << std::endl;
 			// 		bValue = a;
 			// }
-			float_4 min = {0.f,0.f,0.f,0.f};
-			float_4 max = {10.f,10.f,10.f,10.f};
-			float_4 distAmount4 = 0.5f*simd::clamp(distAmount+cvDist,min,max); // distAmount included between 0 and 5
-			float_4 thold = 5.f-(5.f/3.f)*distAmount; // times (5/3) because we want to use it to make pulse width parameter
+			float distAmount = 0.5f*simd::clamp(distAmount0+cvDist,0.f,10.f); // distAmount included between 0 and 5
+			float thold = 5.f-(5.f/3.f)*distAmount; // times (5/3) because we want to use it to make pulse width parameter
 
 			oscillator->shape = shape;
 			oscillator->shapeCV = shapeCV;
-			oscillator->distAmount = distAmount4;
+			oscillator->distAmount = distAmount;
 			oscillator->thold = thold;
 
 			oscillator->setPitch(pitch);

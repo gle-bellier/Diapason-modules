@@ -8,4 +8,4 @@ extern Plugin *pluginInstance;
 
 // Declare each Model, defined in each module source file
 extern Model *modelWave;
-extern Model *soundSubst;
+extern Model *modelTest;

@@ -16,8 +16,8 @@
 			"tags": ["VCO","Polyphonic"]
 		},
 		{
-			"slug": "Substract",
-			"name": "Substract",
+			"slug": "Test",
+			"name": "Test",
 			"description": "Filter with frequency substraction",
 			"tags": ["filter"]
 		}
