@@ -6,44 +6,72 @@
 
 
 
-struct lpFilter2 {
+class filter2 {
+	protected :
+	float buffers[4]; // Order : X1,X2,Y1,Y2
+	float coeffs[5];// order : a0, a1, a2, b1, b2
+	float thetaC;
+	void bufferize(float, float);
+	void setCutoff(float,float);
+};
+void filter2::bufferize(float in, float out){
+	buffers[1]=buffers[0];
+	buffers[0]=in;
+	buffers[3]=buffers[2];
+	buffers[2]=out;
+}
+void filter2::setCutoff(float frequency, float tSampling){
+		thetaC = 2*M_PI*frequency*tSampling;
+}
 
-	float bX1=0;
-	float bX2=0;
-	float bY1=0;
-	float bY2=0;
 
-	float process (float X0, float freq, float qFactor,float Tn){
-			//setCutoff(freq,Tn);
-			float thetaC = 2*M_PI*freq*Tn;
-			std::cout << "Freq = " << freq << '\n';
-			float q = qFactor;
-			float d = 1.f/q;
+
+class lpFilter2 : public filter2{
+	public :
+	float process(float, float, float, float);
+};
+
+float lpFilter2::process (float X0, float freq, float qFactor,float Tn){
+			setCutoff(freq,Tn);
+			float d = 1.f/qFactor;
 			float fBetaNumerator = 1.f - 0.5f*d*std::sin(thetaC);
 			float fBetaDenominator = 1.f + 0.5f*d*std::sin(thetaC);
 			float fBeta = 0.5f*(fBetaNumerator/fBetaDenominator);
 			float fGamma = (0.5f + fBeta)*std::cos(thetaC);
 			float fAlpha = (0.5f + fBeta - fGamma)/2.0f;
-
-			float coeff0 = fAlpha;
-			float coeff1 = 2.f*fAlpha;
-			float coeff2 = fAlpha;
-			float coeff3 = -2.f*fGamma;
-			float coeff4 = 2.f*fBeta;
-
-			std::cout << "Input = "<< X0 << '\n';
-			float output = coeff0*X0 + coeff1*bX1 + coeff2*bX2 - coeff3*bY1 - coeff4*bY2;
-			//float output = coeff0*X0 + coeff1*buffers[0] + coeff2*buffers[1] - coeff3*buffers[2] - coeff4*buffers[3];
-			std::cout << "Output = " << output << '\n';
-			// bufferize(X0,output);
-			bX2=bX1;
-			bX1=X0;
-			bY2=bY1;
-			bY1=output;
-
+			coeffs[0] = fAlpha;
+			coeffs[1] = 2.f*fAlpha;
+			coeffs[2] = fAlpha;
+			coeffs[3] = -2.f*fGamma;
+			coeffs[4] = 2.f*fBeta;
+			float output = coeffs[0]*X0 + coeffs[1]*buffers[0] + coeffs[2]*buffers[1] - coeffs[3]*buffers[2] - coeffs[4]*buffers[3];
+			bufferize(X0,output);
 			return output;
 		}
+
+class hpFilter2 : public filter2{
+	public :
+	float process(float, float, float, float);
 };
+
+float hpFilter2::process (float X0, float freq, float qFactor,float Tn){
+			setCutoff(freq,Tn);
+			float d = 1.f/qFactor;
+			float fBetaNumerator = 1.f - 0.5f*d*std::sin(thetaC);
+			float fBetaDenominator = 1.f + 0.5f*d*std::sin(thetaC);
+			float fBeta = 0.5f*(fBetaNumerator/fBetaDenominator);
+			float fGamma = (0.5f + fBeta)*std::cos(thetaC);
+			float fAlpha = (0.5f + fBeta + fGamma)/2.0f;
+			coeffs[0] = fAlpha;
+			coeffs[1] = -2.f*fAlpha;
+			coeffs[2] = fAlpha;
+			coeffs[3] = -2.f*fGamma;
+			coeffs[4] = 2.f*fBeta;
+			float output = coeffs[0]*X0 + coeffs[1]*buffers[0] + coeffs[2]*buffers[1] - coeffs[3]*buffers[2] - coeffs[4]*buffers[3];
+			bufferize(X0,output);
+			return output;
+		}
+
 
 
 struct Test : Module {
@@ -67,7 +95,7 @@ struct Test : Module {
 	};
 	float phase = 0.f;
 	lpFilter2 filterlp;
-
+	hpFilter2 filterhp;
 	Test() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(FREQUENCY, 0.f, 1.f, 0.5f, "Frequency", " Hz", std::pow(2, 10.f), dsp::FREQ_C4 / std::pow(2, 5.f));
@@ -83,6 +111,8 @@ struct Test : Module {
 		float X0 = inputs[INPUT].getVoltage() + 1e-6f * (2.f * random::uniform() - 1.f);;
 		float outputlp = filterlp.process(X0,freq,q,args.sampleTime);
 		outputs[OUTPUTLP].setVoltage(simd::clamp(outputlp,-5.f,5.f));
+		float outputhp = filterhp.process(X0,freq,q,args.sampleTime);
+		outputs[OUTPUTHP].setVoltage(simd::clamp(outputhp,-5.f,5.f));
 	}
 };
 
@@ -104,7 +134,7 @@ struct TestWidget : ModuleWidget {
 
 		addInput(createInput<PJ301MPort>(Vec(28, 320), module, Test::INPUT));
 		addOutput(createOutput<PJ301MPort>(Vec(68, 320), module, Test::OUTPUTLP));
-
+		addOutput(createOutput<PJ301MPort>(Vec(98, 320), module, Test::OUTPUTHP));
 		//addChild(createLight<MediumLight<RedLight>>(Vec(41, 59), module, Test::BLINK_LIGHT));
 	}
 };
