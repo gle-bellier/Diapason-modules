@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <ctime>
+#include <math.h>
 
 
 
@@ -110,6 +111,106 @@ float bsFilter2::process (float X0, float freq, float qFactor,float Tn){
 			return output;
 		}
 
+class lpFilter2Butterworth : public filter{
+	public :
+	float process(float, float, float);
+};
+float lpFilter2Butterworth::process (float X0,float freq,float Tn){
+			setCutoff(freq,Tn);
+			float C = 1.f / std::tan(simd::clamp(thetaC/2.f,0.f,3.14f/2.f));
+			float fAlpha = 1.f / (1.f + simd::pow(2.f, 0.5f)*C + simd::pow(C,2.f));
+			coeffs[0] = fAlpha;
+			coeffs[1] = 2.f*fAlpha;
+			coeffs[2] = fAlpha;
+			coeffs[3] = 2.f*fAlpha*(1.f - simd::pow(C,2.f));
+			coeffs[4] = fAlpha*(1.f - simd::pow(2.f, 0.5f)*C + simd::pow(C,2.f));
+			float output = coeffs[0]*X0 + coeffs[1]*buffers[0] + coeffs[2]*buffers[1] - coeffs[3]*buffers[2] - coeffs[4]*buffers[3];
+			bufferize(X0,output);
+			return output;
+		}
+
+class hpFilter2Butterworth : public filter{
+	public :
+	float process(float, float, float);
+};
+float hpFilter2Butterworth::process (float X0,float freq,float Tn){
+			setCutoff(freq,Tn);
+			float C = std::tan(simd::clamp(thetaC/2.f,0.f,3.14f/2.f));
+			float fAlpha = 1.f / (1.f + simd::pow(2.f, 0.5f)*C + simd::pow(C,2.f));
+			coeffs[0] = fAlpha;
+			coeffs[1] = -2.f*fAlpha;
+			coeffs[2] = fAlpha;
+			coeffs[3] = -2.f*fAlpha*(1.f - simd::pow(C,2.f));
+			coeffs[4] = fAlpha*(1.f - simd::pow(2.f, 0.5f)*C + simd::pow(C,2.f));
+			float output = coeffs[0]*X0 + coeffs[1]*buffers[0] + coeffs[2]*buffers[1] - coeffs[3]*buffers[2] - coeffs[4]*buffers[3];
+			bufferize(X0,output);
+			return output;
+		}
+
+class lpFilter2Massberg : public filter{
+	public :
+	float process(float, float, float, float);
+};
+float lpFilter2Massberg::process (float X0, float freq, float qFactor,float Tn){
+			setCutoff(freq,Tn);
+			qFactor /= 10.f;
+			std::cout <<qFactor <<'\n';
+			float Qp; float Qz;float Ws;
+			float g1 = 2.f/simd::pow(simd::pow(2.f - (2.f*M_PI*M_PI)/(thetaC*thetaC),2.f)+simd::pow((2*M_PI)/(qFactor*thetaC),2.f), 0.5f);
+			if (qFactor>simd::pow(0.5f,0.5f)){
+				float gr = (2*simd::pow(qFactor,2.f))/simd::pow(4.f*qFactor*qFactor-1.f,0.5f);
+				float wr = thetaC*simd::pow(1.f-1.f/(4.f*simd::pow(qFactor,2.f)),0.5f);
+				float Wr = tan(wr/2.f);
+				Ws = Wr*simd::pow((gr*gr-g1*g1)/(gr*gr-1.f),0.25f);
+
+				float wp = 2.f * atan(Ws);
+				float wz = 2.f * atan(Ws/simd::pow(g1,0.5f));
+				float gp = 1.f/(simd::pow(1.f - simd::pow(wp/thetaC,2.f)+simd::pow(wp/(qFactor*thetaC),2.f), 0.5f));
+				float gz = 1.f/(simd::pow(1.f - simd::pow(wz/thetaC,2.f)+simd::pow(wz/(qFactor*thetaC),2.f), 0.5f));
+
+				Qp = simd::pow(g1*(gp*gp-gz*gz)/((g1+gz*gz)*simd::pow(g1-1.f,2.f)),0.5f);
+				Qz = simd::pow(g1*g1*(gp*gp-gz*gz)/(gz*gz*(g1+gp*gp)*simd::pow(g1-1.f,2.f)),0.5f);
+
+
+			} else {
+				float wm = thetaC*simd::pow(((2.f-(1.f/(qFactor*qFactor)) + simd::pow(((1.f-4.f*qFactor*qFactor)/simd::pow(qFactor,4.f))+4.f/g1,0.5f))/2.f),0.5f);
+				float Wm = tan(wm/2.f);
+				Ws = thetaC*simd::pow(1.f-g1*g1,0.25f)/2.f;
+				Ws = 	std::min(Ws,Wm);
+
+				float wp = 2.f * atan(Ws);
+				float wz = 2.f * atan(Ws/simd::pow(g1,0.5f));
+				float gp = 1.f/(simd::pow(1.f - simd::pow(wp/thetaC,2.f)+simd::pow(wp/(qFactor*thetaC),2.f), 0.5f));
+				float gz = 1.f/(simd::pow(1.f - simd::pow(wz/thetaC,2.f)+simd::pow(wz/(qFactor*thetaC),2.f), 0.5f));
+
+				Qp = simd::pow(g1*(gp*gp-gz*gz)/((g1+gz*gz)*simd::pow(g1-1.f,2.f)),0.5f);
+				Qz = simd::pow(g1*g1*(gp*gp-gz*gz)/(gz*gz*(g1+gp*gp)*simd::pow(g1-1.f,2.f)),0.5f);
+			}
+
+			float fGamma = Ws*Ws + (1/Qp)*Ws + 1.f;
+
+
+			coeffs[0] = (Ws*Ws + (simd::pow(g1,0.5f)*Ws)/Qz + g1)/fGamma;
+
+			coeffs[1] = 2.f*(Ws*Ws-g1)/fGamma;
+			coeffs[2] = (Ws*Ws - simd::pow(g1,0.5f)*Ws/Qz + g1)/fGamma;
+			coeffs[3] = 2.f*(Ws*Ws-1.f)/fGamma;
+			coeffs[4] = (Ws*Ws - Ws/Qp +1.f)/fGamma;
+
+			float output = coeffs[0]*X0 + coeffs[1]*buffers[0] + coeffs[2]*buffers[1] - coeffs[3]*buffers[2] - coeffs[4]*buffers[3];
+			bufferize(X0,output);
+			return output;
+		}
+
+
+
+
+
+
+
+
+
+
 
 struct Test : Module {
 	enum ParamId {
@@ -131,8 +232,8 @@ struct Test : Module {
 		NUM_LIGHTS
 	};
 	float phase = 0.f;
-	bpFilter2 filterlp;
-	bsFilter2 filterhp;
+	lpFilter2Massberg filterlp;
+	hpFilter2Butterworth filterhp;
 	Test() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(FREQUENCY, 0.f, 1.f, 0.5f, "Frequency", " Hz", std::pow(2, 10.f), dsp::FREQ_C4 / std::pow(2, 5.f));
@@ -148,14 +249,10 @@ struct Test : Module {
 		float X0 = inputs[INPUT].getVoltage() + 1e-6f * (2.f * random::uniform() - 1.f);;
 		float outputlp = filterlp.process(X0,freq,q,args.sampleTime);
 		outputs[OUTPUTLP].setVoltage(simd::clamp(outputlp,-5.f,5.f));
-		float outputhp = filterhp.process(X0,freq,q,args.sampleTime);
+		float outputhp = filterhp.process(X0,freq,args.sampleTime);
 		outputs[OUTPUTHP].setVoltage(simd::clamp(outputhp,-5.f,5.f));
 	}
 };
-
-
-
-
 struct TestWidget : ModuleWidget {
 	TestWidget(Test *module) {
 		setModule(module);

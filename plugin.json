@@ -18,8 +18,14 @@
 		{
 			"slug": "Test",
 			"name": "Test",
-			"description": "Filter with frequency substraction",
+			"description": "Filter with frequency subtraction",
 			"tags": ["filter"]
+		},
+		{
+			"slug": "Additive",
+			"name": "Additive",
+			"description": "Additive synthesis",
+			"tags": ["VCO"]
 		}
 
 	]
