@@ -11,7 +11,6 @@ public :
     void set_frequencies(float,float);
     void set_amount(float);
     void set_pulsewave(float);
-
     float frequencies[32] = {};
     float amount[32] = {};
     double sawtooth_coeff[32] = {};
@@ -19,6 +18,9 @@ public :
     float out_sawtooth=0;
     float out_square=0;
     Vco();
+
+private:
+    void filter_emulation(float,float);
 
 };
 Vco::Vco(){
@@ -63,7 +65,9 @@ void Vco::set_pulsewave(float pulsewidth){
         square_coeff[i]=(2.f/((i+1.f)*M_PI))*std::sin((i+1.f)*M_PI*(pulsewidth));
     }
 }
+void  Vco::filter_emulation(float freq, float q){
 
+}
 
 struct Additive : Module {
     enum ParamId {
