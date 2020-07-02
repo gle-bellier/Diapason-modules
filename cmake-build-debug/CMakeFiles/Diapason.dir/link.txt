@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Diapason.dir/src/addSynth.cpp.o CMakeFiles/Diapason.dir/src/plugin.cpp.o CMakeFiles/Diapason.dir/src/testPlugIn.cpp.o CMakeFiles/Diapason.dir/src/Wave.cpp.o  -o Diapason 

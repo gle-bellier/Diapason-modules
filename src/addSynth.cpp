@@ -89,16 +89,25 @@ struct Additive : Module {
         SPREAD_PARAM,
         PARTIALS_PARAM,
         PITCH_PARAM,
+        FINE_PARAM,
         SHAPE_PARAM,
         DETUNE_PARAM,
-        FILTER_FREQ,
-        FILTER_Q,
+        FILTER_FREQ_PARAM,
+        FILTER_Q_PARAM,
+        MOD_PARTIALS,
+        MOD_SHAPE,
+        MOD_FILTER_FREQ,
+        MOD_FILTER_Q,
         NUM_PARAMS
     };
     enum InputId {
-        INPUT,
+        PITCH,
         CV_SHAPE,
         CV_SPREAD,
+        CV_PARTIALS,
+        CV_FILTER_FREQ,
+        CV_FILTER_Q,
+        CV_DETUNE,
         NUM_INPUTS
     };
     enum OutputId {
@@ -115,35 +124,38 @@ struct Additive : Module {
     Vco osc;
     Additive() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(PITCH_PARAM, 0.f, 1.f, 0.5f, "Frequency", " Hz", std::pow(2, 10.f), dsp::FREQ_C4 / std::pow(2, 5.f));
+		configParam(PITCH_PARAM, -2.f, 2.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
+		configParam(FINE_PARAM, -100.f, 100.f, 0.f, "Fine","cts");
         configParam(SHAPE_PARAM, 0.f, 1.95f, 0.f, "Shape", "");
         configParam(SPREAD_PARAM, 0.f, 1.f, 0.f, "Spread", "");
         configParam(DETUNE_PARAM, 0.f, 1.f, 0.f, "Detune", "");
         configParam(PARTIALS_PARAM, 0.01f, 1.f, 0.f, "Partials", "");
-        configParam(FILTER_FREQ, 1.f, 32.f, 1.f, "Filter Frequence", "");
-        configParam(FILTER_Q, 0.f, 10.f, 0.f, "Resonance", "");
-
-
+        configParam(FILTER_FREQ_PARAM, 1.f, 32.f, 1.f, "Filter Frequence", "");
+        configParam(FILTER_Q_PARAM, 0.f, 10.f, 0.f, "Resonance", "");
     }
     void process(const ProcessArgs &args) override {
-
-        // get value of parameter
-        float pitch = params[PITCH_PARAM].getValue();
-        //pitch += inputs[PITCH_INPUT].getVoltage();
-        pitch = clamp(pitch, -4.f, 4.f);
-        // The default pitch is C4 = 261.6256f
-        float freq = dsp::FREQ_C4 * std::pow(2.f, pitch);
-        // Accumulate the phase
-        phase += freq * args.sampleTime;
-        if (phase >= 0.5f)
-            phase -= 1.f;
-
+        float frequency = params[PITCH_PARAM].getValue();
+		float fine = params[FINE_PARAM].getValue();
         float partials = 10.f*params[PARTIALS_PARAM].getValue();
         float shape = simd::clamp(params[SHAPE_PARAM].getValue() + inputs[CV_SHAPE].getVoltage()/5.f,0.f,1.9f);
         float spread  = params[SPREAD_PARAM].getValue();
         float detune  = params[DETUNE_PARAM].getValue();
-        float filter_frequence  = params[FILTER_FREQ].getValue();
-        float filter_q = params[FILTER_Q].getValue();
+        float filter_frequence  = params[FILTER_FREQ_PARAM].getValue();
+        float filter_q = params[FILTER_Q_PARAM].getValue();
+
+
+        float pitch =  inputs[PITCH].getVoltage();
+
+
+        pitch += frequency;
+		pitch += fine/1200;
+        float freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
+
+        float deltaPhase = simd::clamp(freq * args.sampleTime, 1e-6f, 0.35f);
+		phase += deltaPhase;
+		phase -= simd::floor(phase);
+
+
 
         osc.set_frequencies(spread,detune);
         osc.set_amount(partials);
@@ -157,30 +169,42 @@ struct Additive : Module {
 struct AdditiveWidget : ModuleWidget {
     AdditiveWidget(Additive *module) {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/testPanel.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/addSynthPanel.svg")));
 
         addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
         addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam(createParam<RoundBlackKnob>(Vec(49, 25), module, Additive::SPREAD_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(19, 75), module, Additive::PARTIALS_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(79, 75), module, Additive::DETUNE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(18, 55), module, Additive::PITCH_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(18, 105), module, Additive::SPREAD_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(18, 155), module, Additive::PARTIALS_PARAM));
 
-        addParam(createParam<RoundSmallBlackKnob>(Vec(49, 185), module, Additive::PITCH_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(49, 255), module, Additive::SHAPE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(60, 55), module, Additive::FINE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(60, 105), module, Additive::DETUNE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(60, 155), module, Additive::SHAPE_PARAM));
+
+        addParam(createParam<RoundBlackKnob>(Vec(102, 105), module, Additive::FILTER_FREQ_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(102, 155), module, Additive::FILTER_Q_PARAM));
 
 
-        addParam(createParam<RoundSmallBlackKnob>(Vec(49, 155), module, Additive::FILTER_FREQ));
-        addParam(createParam<RoundSmallBlackKnob>(Vec(75, 155), module, Additive::FILTER_Q));
+        addParam(createParam<RoundSmallBlackKnob>(Vec(11, 227), module, Additive::MOD_PARTIALS));
+        addParam(createParam<RoundSmallBlackKnob>(Vec(45, 227), module, Additive::MOD_SHAPE));       
+        addParam(createParam<RoundSmallBlackKnob>(Vec(80, 227), module, Additive::MOD_FILTER_FREQ));
+        addParam(createParam<RoundSmallBlackKnob>(Vec(114, 227), module, Additive::MOD_FILTER_Q));
 
 
-        addInput(createInput<PJ301MPort>(Vec(28, 320), module, Additive::INPUT));
-        addInput(createInput<PJ301MPort>(Vec(28, 280), module, Additive::CV_SHAPE));
-        addInput(createInput<PJ301MPort>(Vec(98, 280), module, Additive::CV_SPREAD));
 
-        addOutput(createOutput<PJ301MPort>(Vec(98, 320), module, Additive::OUTPUT));
+        addInput(createInput<PJ301MPort>(Vec(11, 276), module, Additive::CV_FILTER_FREQ));
+        addInput(createInput<PJ301MPort>(Vec(45, 276), module, Additive::CV_FILTER_Q));
+        addInput(createInput<PJ301MPort>(Vec(80, 276), module, Additive::CV_DETUNE));
+        addInput(createInput<PJ301MPort>(Vec(114, 276), module, Additive::CV_SPREAD));
+
+
+        addInput(createInput<PJ301MPort>(Vec(11, 320), module, Additive::PITCH));
+        addInput(createInput<PJ301MPort>(Vec(45, 320), module, Additive::CV_SHAPE));
+        addInput(createInput<PJ301MPort>(Vec(80, 320), module, Additive::CV_PARTIALS));
+        addOutput(createOutput<PJ301MPort>(Vec(114, 320), module, Additive::OUTPUT));
 
     }
 };

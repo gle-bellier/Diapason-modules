@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/erik/Documents/scripts/VCV/**",
+                "/home/erik/Documents/scripts/VCV/Rack/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,3 @@
+/home/erik/Documents/scripts/VCV/Rack/plugins/Diapason/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/erik/Documents/scripts/VCV/Rack/plugins/Diapason/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/erik/Documents/scripts/VCV/Rack/plugins/Diapason/cmake-build-debug/CMakeFiles/Diapason.dir
