@@ -125,19 +125,28 @@ struct Additive : Module {
     Additive() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(PITCH_PARAM, -2.f, 2.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
+        configParam(FILTER_FREQ_PARAM, -2.f, 2.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
+
 		configParam(FINE_PARAM, -100.f, 100.f, 0.f, "Fine","cts");
-        configParam(SHAPE_PARAM, 0.f, 1.95f, 0.f, "Shape", "");
+        configParam(SHAPE_PARAM, 0.f, 1.f, 0.f, "Shape", "");
         configParam(SPREAD_PARAM, 0.f, 1.f, 0.f, "Spread", "");
         configParam(DETUNE_PARAM, 0.f, 1.f, 0.f, "Detune", "");
-        configParam(PARTIALS_PARAM, 0.01f, 1.f, 0.f, "Partials", "");
-        configParam(FILTER_FREQ_PARAM, 1.f, 32.f, 1.f, "Filter Frequence", "");
-        configParam(FILTER_Q_PARAM, 0.f, 10.f, 0.f, "Resonance", "");
+        configParam(PARTIALS_PARAM, 0.f, 1.f, 0.f, "Partials", "");
+        configParam(FILTER_Q_PARAM, 0.f, 1.f, 0.f, "Resonance", "");
+
+        configParam(MOD_PARTIALS, -1.f, 1.f, 0.f, "Amount CV", "");
+        configParam(MOD_SHAPE, -1.f, 1.f, 0.f, "Amount CV", "");
+        configParam(MOD_FILTER_Q, -1.f, 1.f, 0.f, "Amount CV", "");        
+        configParam(MOD_FILTER_FREQ, -1.f, 1.f, 0.f, "Amount CV", "");
     }
     void process(const ProcessArgs &args) override {
         float frequency = params[PITCH_PARAM].getValue();
 		float fine = params[FINE_PARAM].getValue();
-        float partials = 10.f*params[PARTIALS_PARAM].getValue();
-        float shape = simd::clamp(params[SHAPE_PARAM].getValue() + inputs[CV_SHAPE].getVoltage()/5.f,0.f,1.9f);
+
+        //float partials = 10.f*params[PARTIALS_PARAM].getValue();
+        //float shape = simd::clamp(params[SHAPE_PARAM].getValue() + inputs[CV_SHAPE].getVoltage()/5.f,0.f,1.9f);
+        float partials = params[PARTIALS_PARAM].getValue();
+        float shape = params[SHAPE_PARAM].getValue();
         float spread  = params[SPREAD_PARAM].getValue();
         float detune  = params[DETUNE_PARAM].getValue();
         float filter_frequence  = params[FILTER_FREQ_PARAM].getValue();
@@ -145,6 +154,31 @@ struct Additive : Module {
 
 
         float pitch =  inputs[PITCH].getVoltage();
+        float cv_shape = inputs[CV_SHAPE].getVoltage();
+        float cv_spread = inputs[CV_SPREAD].getVoltage();
+        float cv_detune = inputs[CV_DETUNE].getVoltage();
+        float cv_partials = inputs[CV_PARTIALS].getVoltage();
+        float cv_filter_freq = inputs[CV_FILTER_FREQ].getVoltage();
+        float cv_filter_q = inputs[CV_FILTER_Q].getVoltage();
+
+        float mod_partials = params[MOD_PARTIALS].getValue();
+        float mod_shape = params[MOD_SHAPE].getValue();
+        float mod_filter_freq = params[MOD_FILTER_FREQ].getValue();
+        float mod_filter_q = params[MOD_FILTER_Q].getValue();
+
+        detune = simd::clamp(detune + cv_detune,0.f,0.5f);
+        spread = simd::clamp(spread + cv_spread,0.f,0.5f);
+        
+        std::cout<<"Partials CV";
+        std::cout<<cv_partials <<"\n";
+        std::cout<<"Partials MOD";
+        std::cout<<mod_partials <<"\n";
+
+        partials = simd::clamp(partials + cv_partials*mod_partials/5.f,0.01f,5.f)*10.f;
+        shape = simd::clamp(shape + cv_shape*mod_shape,0.f,5.f);
+        filter_frequence = simd::clamp(filter_frequence + cv_filter_freq*mod_filter_freq,0.f,5.f);
+        filter_q = simd::clamp(filter_q + cv_filter_q*mod_filter_q,0.f,5.f);
+
 
 
         pitch += frequency;
@@ -195,15 +229,15 @@ struct AdditiveWidget : ModuleWidget {
 
 
 
-        addInput(createInput<PJ301MPort>(Vec(11, 276), module, Additive::CV_FILTER_FREQ));
-        addInput(createInput<PJ301MPort>(Vec(45, 276), module, Additive::CV_FILTER_Q));
-        addInput(createInput<PJ301MPort>(Vec(80, 276), module, Additive::CV_DETUNE));
-        addInput(createInput<PJ301MPort>(Vec(114, 276), module, Additive::CV_SPREAD));
+        addInput(createInput<PJ301MPort>(Vec(11, 276), module, Additive::CV_PARTIALS));
+        addInput(createInput<PJ301MPort>(Vec(45, 276), module, Additive::CV_SHAPE));
+        addInput(createInput<PJ301MPort>(Vec(80, 276), module, Additive::CV_FILTER_FREQ));
+        addInput(createInput<PJ301MPort>(Vec(114, 276), module, Additive::CV_FILTER_Q));
 
 
         addInput(createInput<PJ301MPort>(Vec(11, 320), module, Additive::PITCH));
-        addInput(createInput<PJ301MPort>(Vec(45, 320), module, Additive::CV_SHAPE));
-        addInput(createInput<PJ301MPort>(Vec(80, 320), module, Additive::CV_PARTIALS));
+        addInput(createInput<PJ301MPort>(Vec(45, 320), module, Additive::CV_DETUNE));
+        addInput(createInput<PJ301MPort>(Vec(80, 320), module, Additive::CV_SPREAD));
         addOutput(createOutput<PJ301MPort>(Vec(114, 320), module, Additive::OUTPUT));
 
     }
