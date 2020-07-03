@@ -30,6 +30,7 @@ Vco::Vco(){
     set_pulsewave(0.5);
 }
 float Vco::process (float phase,float shape){
+    shape*=1.95f;
     if (shape>1.f){
         set_pulsewave(1.f - 0.5f*shape);
     } else {
@@ -78,7 +79,7 @@ float Vco::filter_emulation(int freq, float freq_cut, float q){
 
 void Vco::set_filter(float freq_cut, float q) {
     for(int i = 0;i<32;i++){
-        amount[i] *= filter_emulation(i+1,freq_cut,q);
+        amount[i] *= filter_emulation(i+1,freq_cut,q*10.f);
         //std::cout<<amount[i] << std::endl;;
 
     }
@@ -182,10 +183,6 @@ struct Additive : Module {
         float freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
         // index of filter cutting frequency f_c
         float filter_index_c = filter_frequency/freq;
-        std::cout << "frequency : " << freq << "\n";
-        std::cout << "filter cutting frequency : " << filter_frequency << "\n";
-
-        std::cout << "index cutting frequency : " << filter_index_c << "\n";
 
 
         float deltaPhase = simd::clamp(freq * args.sampleTime, 1e-6f, 0.35f);
