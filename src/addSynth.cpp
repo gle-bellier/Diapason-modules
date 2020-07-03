@@ -125,14 +125,15 @@ struct Additive : Module {
     Additive() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		configParam(PITCH_PARAM, -2.f, 2.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
-        configParam(FILTER_FREQ_PARAM, -2.f, 2.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
-
+        configParam(FILTER_FREQ_PARAM, -2.f, 5.f, -2.f, "Filter Freq", " Hz", 2.f, dsp::FREQ_C4);
 		configParam(FINE_PARAM, -100.f, 100.f, 0.f, "Fine","cts");
+        configParam(FILTER_Q_PARAM, 0.f, 1.f, 0.f, "Resonance", "");
+
         configParam(SHAPE_PARAM, 0.f, 1.f, 0.f, "Shape", "");
         configParam(SPREAD_PARAM, 0.f, 1.f, 0.f, "Spread", "");
         configParam(DETUNE_PARAM, 0.f, 1.f, 0.f, "Detune", "");
         configParam(PARTIALS_PARAM, 0.f, 1.f, 0.f, "Partials", "");
-        configParam(FILTER_Q_PARAM, 0.f, 1.f, 0.f, "Resonance", "");
+        
 
         configParam(MOD_PARTIALS, -1.f, 1.f, 0.f, "Amount CV", "");
         configParam(MOD_SHAPE, -1.f, 1.f, 0.f, "Amount CV", "");
@@ -149,7 +150,7 @@ struct Additive : Module {
         float shape = params[SHAPE_PARAM].getValue();
         float spread  = params[SPREAD_PARAM].getValue();
         float detune  = params[DETUNE_PARAM].getValue();
-        float filter_frequence  = params[FILTER_FREQ_PARAM].getValue();
+        float filter_freq  = params[FILTER_FREQ_PARAM].getValue();
         float filter_q = params[FILTER_Q_PARAM].getValue();
 
 
@@ -166,24 +167,26 @@ struct Additive : Module {
         float mod_filter_freq = params[MOD_FILTER_FREQ].getValue();
         float mod_filter_q = params[MOD_FILTER_Q].getValue();
 
-        detune = simd::clamp(detune + cv_detune,0.f,0.5f);
-        spread = simd::clamp(spread + cv_spread,0.f,0.5f);
-        
-        std::cout<<"Partials CV";
-        std::cout<<cv_partials <<"\n";
-        std::cout<<"Partials MOD";
-        std::cout<<mod_partials <<"\n";
+        detune = simd::clamp(detune + cv_detune/5.f,0.f,0.1f);
+        spread = simd::clamp(spread + cv_spread/5.f,0.f,0.1f);
 
-        partials = simd::clamp(partials + cv_partials*mod_partials/5.f,0.01f,5.f)*10.f;
-        shape = simd::clamp(shape + cv_shape*mod_shape,0.f,5.f);
-        filter_frequence = simd::clamp(filter_frequence + cv_filter_freq*mod_filter_freq,0.f,5.f);
-        filter_q = simd::clamp(filter_q + cv_filter_q*mod_filter_q,0.f,5.f);
+        partials = simd::clamp(partials + cv_partials*mod_partials/5.f,0.01f,1.f)*10.f;
+        shape = simd::clamp(shape + cv_shape*mod_shape/5.f,0.f,1.f);
+        filter_freq = simd::clamp(filter_freq + cv_filter_freq*mod_filter_freq/3.5f,-2.f,5.f);
+        filter_q = simd::clamp(filter_q + cv_filter_q*mod_filter_q/5.f,0.f,1.f);
 
 
-
+        float filter_frequency = dsp::FREQ_C4 * simd::pow(2.f, filter_freq);
         pitch += frequency;
 		pitch += fine/1200;
         float freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
+        // index of filter cutting frequency f_c
+        float filter_index_c = filter_frequency/freq;
+        std::cout << "frequency : " << freq << "\n";
+        std::cout << "filter cutting frequency : " << filter_frequency << "\n";
+
+        std::cout << "index cutting frequency : " << filter_index_c << "\n";
+
 
         float deltaPhase = simd::clamp(freq * args.sampleTime, 1e-6f, 0.35f);
 		phase += deltaPhase;
@@ -193,7 +196,7 @@ struct Additive : Module {
 
         osc.set_frequencies(spread,detune);
         osc.set_amount(partials);
-        osc.set_filter(filter_frequence,filter_q);
+        osc.set_filter(filter_index_c,filter_q);
 
         float out = osc.process(phase,shape);
         outputs[OUTPUT].setVoltage(simd::clamp(out*4.5f,-5.f,5.f));
