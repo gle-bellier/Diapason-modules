@@ -53,7 +53,7 @@ float Vco::process (float phase,float shape){
 void Vco::set_frequencies(float spread,float detune){
     frequencies[0] = 1;
     for(int i = 1;i<32;i++){
-        frequencies[i] = (float)(i+1) + 10.f*spread/std::pow((float) (i+1),2.f) + std::pow(-1.05f,i)*detune;
+        frequencies[i] = i+1.f+spread + std::pow(-1.05f,i)*detune;
     };
 }
 void Vco::set_amount(float k){
@@ -64,6 +64,7 @@ void Vco::set_amount(float k){
 void Vco::set_pulsewave(float pulsewidth){
     for(int i=0;i<32;i++){
         square_coeff[i]=(2.f/((i+1.f)*M_PI))*std::sin((i+1.f)*M_PI*(pulsewidth));
+        //TODO : formula not working in case of spread/detune : use frequency array 
     }
 }
 float Vco::filter_emulation(int freq, float freq_cut, float q){
