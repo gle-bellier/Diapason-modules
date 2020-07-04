@@ -50,12 +50,16 @@ float Vco::process (float phase,float shape){
         return 2.f*out_square-(shape-1.f);
     }
 }
+
+
 void Vco::set_frequencies(float spread,float detune){
     frequencies[0] = 1;
     for(int i = 1;i<32;i++){
-        frequencies[i] = i+1.f+spread + std::pow(-1.05f,i)*detune;
+        frequencies[i] = std::pow(i+1.f,1.f+spread) + std::pow(-1.f,i)*std::pow(i+1.f,2.f+detune)*detune ;
     };
 }
+
+
 void Vco::set_amount(float k){
     for(int i = 0;i<32;i++){
         amount[i] = std::exp(-std::pow((float)(i+1) - 1.f,2)/std::pow(k,4.f)); //
@@ -77,7 +81,6 @@ float Vco::filter_emulation(int freq, float freq_cut, float q){
     return b0*b1*b2*b3+b4;
 
 }
-
 void Vco::set_filter(float freq_cut, float q) {
     for(int i = 0;i<32;i++){
         amount[i] *= filter_emulation(i+1,freq_cut,q*10.f);
@@ -169,8 +172,8 @@ struct Additive : Module {
         float mod_filter_freq = params[MOD_FILTER_FREQ].getValue();
         float mod_filter_q = params[MOD_FILTER_Q].getValue();
 
-        detune = simd::clamp(detune + cv_detune/5.f,0.f,0.1f);
-        spread = simd::clamp(spread + cv_spread/5.f,0.f,0.1f);
+        detune = simd::clamp(detune + cv_detune/5.f,0.f,1.f);
+        spread = simd::clamp(spread + cv_spread/5.f,0.f,1.f);
 
         partials = simd::clamp(partials + cv_partials*mod_partials/5.f,0.01f,1.f)*10.f;
         shape = simd::clamp(shape + cv_shape*mod_shape/5.f,0.f,1.f);
