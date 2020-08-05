@@ -21,7 +21,7 @@ public :
     Vco();
 
 private:
-    float filter_emulation(int,float,float);
+    float filter_emulation(float,float,float);
 };
 Vco::Vco(){
     for(int i=0;i<32;i++){
@@ -71,7 +71,7 @@ void Vco::set_pulsewave(float pulsewidth){
         //TODO : formula not working in case of spread/detune : use frequency array 
     }
 }
-float Vco::filter_emulation(int freq, float freq_cut, float q){
+float Vco::filter_emulation(float freq, float freq_cut, float q){
     //return 35.f*std::pow(q + 0.1f, 2.f)*std::exp(-10.f*std::pow(q,0.5f)*std::pow(freq-freq_cut,2.f))-65.f*std::pow(q,2.f)+0.65f;
     float b0 = 1.f - 0.5f*std::exp(-1.f+q/15);
     float b1 = std::log(1.f + std::exp(1.f)*q);
@@ -83,8 +83,9 @@ float Vco::filter_emulation(int freq, float freq_cut, float q){
 }
 void Vco::set_filter(float freq_cut, float q) {
     for(int i = 0;i<32;i++){
-        amount[i] *= filter_emulation(i+1,freq_cut,q*10.f);
-        //std::cout<<amount[i] << std::endl;;
+        amount[i] *= filter_emulation(i+1.f,freq_cut,q*10.f);
+        //TODO : formula not working in case of spread/detune : use frequency array 
+
 
     }
 }
