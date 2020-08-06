@@ -7,10 +7,10 @@
 
 class Vco {
 public :
-    float process(float,float);
+    float process(float,float,float);
     void set_frequencies(float,float);
     void set_amount(float);
-    void set_pulsewave(float);
+    void set_pulsewave(float,float);
     void set_filter(float,float);
     float frequencies[32] = {};
     float amount[32] = {};
@@ -27,14 +27,13 @@ Vco::Vco(){
     for(int i=0;i<32;i++){
         sawtooth_coeff[i]=(2.f/((i+1.f)*M_PI))*std::pow(-1.f,(i+2.f));
     }
-    set_pulsewave(0.5);
 }
-float Vco::process (float phase,float shape){
+float Vco::process (float phase,float shape, float partials){
     shape*=1.95f;
     if (shape>1.f){
-        set_pulsewave(1.f - 0.5f*shape);
+        set_pulsewave(1.f - 0.5f*shape, partials);
     } else {
-        set_pulsewave(0.5f);
+        set_pulsewave(0.5f,partials);
     }
     out_sawtooth=0;
     out_square=0;
@@ -44,11 +43,21 @@ float Vco::process (float phase,float shape){
     for(int i = 0;i<32;i++){
         out_sawtooth += amount[i] * sawtooth_coeff[i] * std::sin(2.f* frequencies[i] * M_PI * phase);
     };
+
+    // if shape ~ 1.95 and partials low we need to add first harmonic. 
+
     if (shape<1.f) {
         return shape * (2.f * out_square) + (1.f - shape) * out_sawtooth;
-    } else {
+    } 
+    else /*(shape>1.70f)*/{
+        return (2.f*out_square-(shape-1.f))*(1.f - std::exp(-10.f*std::pow(partials+ (1.95f-shape),2.f)));
+    }
+     
+    /*
+    else {
         return 2.f*out_square-(shape-1.f);
     }
+    */
 }
 
 
@@ -65,7 +74,7 @@ void Vco::set_amount(float k){
         amount[i] = std::exp(-std::pow((float)(i+1) - 1.f,2)/std::pow(k,4.f)); //
     };
 }
-void Vco::set_pulsewave(float pulsewidth){
+void Vco::set_pulsewave(float pulsewidth, float partials){
     for(int i=0;i<32;i++){
         square_coeff[i]=(2.f/((i+1.f)*M_PI))*std::sin((i+1.f)*M_PI*(pulsewidth));
         //TODO : formula not working in case of spread/detune : use frequency array 
@@ -200,7 +209,7 @@ struct Additive : Module {
         osc.set_amount(partials);
         osc.set_filter(filter_index_c,filter_q);
 
-        float out = osc.process(phase,shape);
+        float out = osc.process(phase,shape,partials);
         outputs[OUTPUT].setVoltage(simd::clamp(out*4.5f,-5.f,5.f));
 
     }
