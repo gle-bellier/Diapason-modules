@@ -112,7 +112,7 @@ float Vco::filter_emulation(float freq, float freq_cut, float q,float shape){
     if (shape<0){
         return filter_bandpass(freq,freq_cut,q)*(1.f-shape*(-1.f+filter_lowpass(freq,freq_cut,q)));
     } else {
-        return filter_highpass(freq,freq_cut,q)*(1.f+shape*(-1.f+filter_lowpass(freq,freq_cut,q)));
+        return filter_bandpass(freq,freq_cut,q)*(1.f+shape*(-1.f+filter_highpass(freq,freq_cut,q)));
     }
 }
 
