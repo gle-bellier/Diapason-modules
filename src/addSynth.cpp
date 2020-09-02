@@ -278,19 +278,19 @@ struct AdditiveWidget : ModuleWidget {
         addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        addParam(createParam<RoundBlackKnob>(Vec(18, 55), module, Additive::PITCH_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(60, 55), module, Additive::FINE_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(102, 55), module, Additive::PARTIALS_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(30, 35), module, Additive::PITCH_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(90, 35), module, Additive::FINE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(130, 35), module, Additive::PARTIALS_PARAM));
         
         
         
-        addParam(createParam<RoundBlackKnob>(Vec(18, 105), module, Additive::SHAPE_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(60, 105), module, Additive::SPREAD_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(102, 105), module, Additive::DETUNE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(30, 100), module, Additive::SHAPE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(90, 100), module, Additive::SPREAD_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(130, 100), module, Additive::DETUNE_PARAM));
 
-        addParam(createParam<RoundBlackKnob>(Vec(18, 155), module, Additive::FILTER_FREQ_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(60, 155), module, Additive::FILTER_SHAPE_PARAM));
-        addParam(createParam<RoundBlackKnob>(Vec(102, 155), module, Additive::FILTER_Q_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(30, 165), module, Additive::FILTER_FREQ_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(90, 165), module, Additive::FILTER_SHAPE_PARAM));
+        addParam(createParam<RoundBlackKnob>(Vec(130, 165), module, Additive::FILTER_Q_PARAM));
 
 
         addParam(createParam<RoundSmallBlackKnob>(Vec(15, 237), module, Additive::MOD_SHAPE));
