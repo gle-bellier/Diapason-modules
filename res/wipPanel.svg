@@ -7,13 +7,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:version="1.0 (b51213c273, 2020-08-10)"
-   sodipodi:docname="wipPanel.svg"
-   id="svg3274"
-   version="1.1"
-   viewBox="0 0 47.508872 100.54167"
+   width="179.5611"
    height="380"
-   width="179.5611">
+   viewBox="0 0 47.508872 100.54167"
+   version="1.1"
+   id="svg3274"
+   sodipodi:docname="wipPanel.svg"
+   inkscape:version="1.0 (b51213c273, 2020-08-10)">
   <defs
      id="defs3268">
     <rect
@@ -162,11 +162,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.6975116"
-     inkscape:cx="50.391402"
-     inkscape:cy="83.859224"
+     inkscape:zoom="5.0383782"
+     inkscape:cx="125.60064"
+     inkscape:cy="185.66299"
      inkscape:document-units="mm"
-     inkscape:current-layer="svg3274"
+     inkscape:current-layer="g745"
      inkscape:document-rotation="0"
      showgrid="false"
      inkscape:window-width="1920"
@@ -1537,56 +1537,11 @@
       <g
          inkscape:groupmode="layer"
          inkscape:label="Arcs"
-         id="g9341">
-        <path
-           sodipodi:cx="38.364536"
-           sodipodi:cy="47.62505"
-           sodipodi:rx="4.8000002"
-           sodipodi:ry="4.8000002"
-           sodipodi:type="arc"
-           sodipodi:start="2.3561945"
-           sodipodi:end="0.78539816"
-           sodipodi:open="true"
-           style="fill:none;stroke:#2e3436;stroke-width:0.1"
-           id="path9339"
-           sodipodi:arc-type="arc"
-           d="m 34.970424,51.019162 a 4.8000002,4.8000002 0 0 1 0,-6.788225 4.8000002,4.8000002 0 0 1 6.788225,0 4.8000002,4.8000002 0 0 1 0,6.788225" />
-      </g>
+         id="g9341" />
       <g
          inkscape:groupmode="layer"
          inkscape:label="Ticks"
-         id="g9353">
-        <circle
-           style="fill:#2e3436;stroke:none;stroke-width:0"
-           id="path9343"
-           cx="34.970425"
-           cy="51.019161"
-           r="0.30000001" />
-        <circle
-           style="fill:#2e3436;stroke:none;stroke-width:0"
-           id="path9345"
-           cx="33.929913"
-           cy="45.78817"
-           r="0.30000001" />
-        <circle
-           style="fill:#2e3436;stroke:none;stroke-width:0"
-           id="path9347"
-           cx="38.364536"
-           cy="42.82505"
-           r="0.30000001" />
-        <circle
-           style="fill:#2e3436;stroke:none;stroke-width:0"
-           id="path9349"
-           cx="42.799156"
-           cy="45.78817"
-           r="0.30000001" />
-        <circle
-           style="fill:#2e3436;stroke:none;stroke-width:0"
-           id="path9351"
-           cx="41.758648"
-           cy="51.019161"
-           r="0.30000001" />
-      </g>
+         id="g9353" />
       <g
          inkscape:groupmode="layer"
          inkscape:label="Labels"
@@ -1695,6 +1650,72 @@
              style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.623078"
              id="path10278" />
         </g>
+      </g>
+    </g>
+    <g
+       inkscape:groupmode="layer"
+       inkscape:label="F_shape_b"
+       id="g1986">
+      <g
+         inkscape:groupmode="layer"
+         inkscape:label="Arcs"
+         id="g1968">
+        <path
+           sodipodi:cx="38.364536"
+           sodipodi:cy="47.62505"
+           sodipodi:rx="4.8000002"
+           sodipodi:ry="4.8000002"
+           sodipodi:type="arc"
+           sodipodi:start="2.0943951"
+           sodipodi:end="1.0471976"
+           sodipodi:open="true"
+           style="fill:none;stroke:#2e3436;stroke-width:0.1"
+           id="path1966"
+           sodipodi:arc-type="arc"
+           d="m 35.964536,51.781972 a 4.8000002,4.8000002 0 0 1 -2.236444,-5.399254 4.8000002,4.8000002 0 0 1 4.636444,-3.557669 4.8000002,4.8000002 0 0 1 4.636444,3.557669 4.8000002,4.8000002 0 0 1 -2.236444,5.399254" />
+      </g>
+      <g
+         inkscape:groupmode="layer"
+         inkscape:label="Ticks"
+         id="g1976">
+        <circle
+           style="fill:#2e3436;stroke:none;stroke-width:0"
+           id="path1970"
+           cx="35.964535"
+           cy="51.781971"
+           r="0.30000001" />
+        <circle
+           style="fill:#2e3436;stroke:none;stroke-width:0"
+           id="path1972"
+           cx="38.364536"
+           cy="42.82505"
+           r="0.30000001" />
+        <circle
+           style="fill:#2e3436;stroke:none;stroke-width:0"
+           id="path1974"
+           cx="40.764534"
+           cy="51.781971"
+           r="0.30000001" />
+      </g>
+      <g
+         inkscape:groupmode="layer"
+         inkscape:label="Labels"
+         id="g1984">
+        <text
+           x="34.514534"
+           y="55.293446"
+           style="font-size:2px;text-align:center;text-anchor:middle;fill:#2e3436"
+           id="text1978">LP</text>
+        <text
+           x="38.364536"
+           y="40.925049"
+           style="font-size:2px;text-align:center;text-anchor:middle;fill:#2e3436"
+           id="text1980">BOOST</text>
+        <text
+           x="42.214535"
+           y="55.293446"
+           style="font-size:2px;text-align:center;text-anchor:middle;fill:#2e3436"
+           id="text1982">HP</text>
       </g>
     </g>
   </g>

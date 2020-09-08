@@ -154,7 +154,7 @@ struct Additive : Module {
         CV_FILTER_Q,
         CV_FILTER_SHAPE,
         CV_DETUNE,
-        RETRIGGER,
+        SYNC,
         NUM_INPUTS
     };
     enum OutputId {
@@ -168,6 +168,7 @@ struct Additive : Module {
         NUM_LIGHTS
     };
     float phase = 0.f;
+    float bufferSync = 0.f;
     Vco osc;
     Additive() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -217,7 +218,7 @@ struct Additive : Module {
         // Second row of inputs configuration
 
         float pitch =  inputs[PITCH].getVoltage();
-        float retrigger = inputs[RETRIGGER].getVoltage();
+        float sync = inputs[SYNC].getVoltage();
         float cv_detune = inputs[CV_DETUNE].getVoltage();
         float cv_filter_freq = inputs[CV_FILTER_FREQ].getVoltage();
 
@@ -255,9 +256,16 @@ struct Additive : Module {
 
         float deltaPhase = simd::clamp(freq * args.sampleTime, 1e-6f, 0.35f);
 		phase += deltaPhase;
+
+        //  sync function
+        if (sync>0.1f && bufferSync==0){
+            phase=0.f;
+        }
+        bufferSync=sync;
+        
+
+
 		phase -= simd::floor(phase);
-
-
 
         osc.set_frequencies(spread,detune);
         osc.set_amount(partials);
@@ -310,7 +318,7 @@ struct AdditiveWidget : ModuleWidget {
 
 
         addInput(createInput<PJ301MPort>(Vec(15, 320), module, Additive::PITCH));
-        addInput(createInput<PJ301MPort>(Vec(45, 320), module, Additive::RETRIGGER));
+        addInput(createInput<PJ301MPort>(Vec(45, 320), module, Additive::SYNC));
         addInput(createInput<PJ301MPort>(Vec(75, 320), module, Additive::CV_DETUNE));
         addInput(createInput<PJ301MPort>(Vec(105, 320), module, Additive::CV_FILTER_FREQ));
         addOutput(createOutput<PJ301MPort>(Vec(135, 320), module, Additive::OUTPUT));
