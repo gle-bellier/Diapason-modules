@@ -258,7 +258,7 @@ struct Additive : Module {
 		phase += deltaPhase;
 
         //  sync function
-        if (sync>0.1f && bufferSync==0){
+        if (sync>0.1f && bufferSync>=0 && bufferSync<=0.1f){
             phase=0.f;
         }
         bufferSync=sync;
