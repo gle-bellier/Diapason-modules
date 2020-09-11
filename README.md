@@ -5,6 +5,6 @@
 
 ### H2 main function 
 
-![screenshot](./screenshots/orionPanel.png)
+![screenshot](./screenshots/panel.png)
 
 
