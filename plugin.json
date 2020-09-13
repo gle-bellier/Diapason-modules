@@ -5,14 +5,16 @@
 	"license": "CC0-1.0",
 	"author": "Erik",
 	"brand": "Diapason",
-	"authorEmail": "",
-	"authorUrl": "",
-	"sourceUrl": "",
+	"authorEmail": "glebellier@protonmail.com",
+	"authorUrl": "https://github.com/mdemanett",
+  	"pluginUrl": "https://github.com/bogaudio/BogaudioModules/blob/master/README.md",
+  	"manualUrl": "https://github.com/bogaudio/BogaudioModules/blob/master/README.md",
+  	"sourceUrl": "https://github.com/bogaudio/BogaudioModules",
 	"modules": [
 		{
 			"slug": "Additive",
 			"name": "Orion",
-			"description": "Additive synthesis",
+			"description": "Additive oscillator",
 			"tags": ["VCO"]
 		}
 
