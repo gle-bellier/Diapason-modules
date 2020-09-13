@@ -50,7 +50,7 @@ float Vco::process (float phase,float shape, float partials){
     for(int i = 0;i<32;i++){
         float p = (phase-0.25f)*frequencies[i]+0.25f;
         p -= simd::floor(p);
-        out_square += amount[i] * square_coeff[i] * sin2pi_pade_05_5_4(p)
+        out_square += amount[i] * square_coeff[i] * sin2pi_pade_05_5_4(p);
     };
     for(int i = 0;i<32;i++){
         float p = phase*frequencies[i];
@@ -91,12 +91,9 @@ void Vco::set_amount(float k){
 void Vco::set_pulsewave(float pulsewidth, float partials){
     for(int i=0;i<32;i++){
 
-        /*float p = (i+1.f)*(pulsewidth)/2.f;
+        float p = (i+1.f)*(pulsewidth)/2.f;
         p -= simd::floor(p);
-        square_coeff[i]=(2.f/((i+1.f)*M_PI))*std::sin(p);*/
-
-        square_coeff[i]=(2.f/((i+1.f)*M_PI))*std::sin((i+1.f)*M_PI*(pulsewidth));
-        //TODO : formula not working in case of spread/detune : use frequency array 
+        square_coeff[i]=(2.f/((i+1.f)*M_PI))*sin2pi_pade_05_5_4(p);
     }
 }
 float Vco::filter_bandpass(float freq, float freq_cut, float q){
