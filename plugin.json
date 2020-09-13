@@ -6,10 +6,10 @@
 	"author": "Erik",
 	"brand": "Diapason",
 	"authorEmail": "glebellier@protonmail.com",
-	"authorUrl": "https://github.com/mdemanett",
-  	"pluginUrl": "https://github.com/bogaudio/BogaudioModules/blob/master/README.md",
-  	"manualUrl": "https://github.com/bogaudio/BogaudioModules/blob/master/README.md",
-  	"sourceUrl": "https://github.com/bogaudio/BogaudioModules",
+	"authorUrl": "https://github.com/gle-bellier",
+  	"pluginUrl": "https://github.com/gle-bellier/Diapason-modules/blob/master/README.md",
+  	"manualUrl": "https://github.com/gle-bellier/Diapason-modules/blob/master/README.md",
+  	"sourceUrl": "https://github.com/gle-bellier/Diapason-modules",
 	"modules": [
 		{
 			"slug": "Additive",
