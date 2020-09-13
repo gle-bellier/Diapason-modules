@@ -38,6 +38,6 @@ Mac, Linux and Windows builds of the latest version are available through Rack's
 
 You'll need to be set up to build VCV Rack itself. Under the Rack build directory, switch to plugins/, and then:
 
-    git clone https://github.com/Diapason 
-    cd Diapason
-    make install
+    git clone https://github.com/gle-bellier/Diapason-modules.git
+    cd Diapason-modules
+    make
