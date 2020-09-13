@@ -5,6 +5,13 @@
 #include <ctime>
 #include <math.h>
 
+template <typename T>
+T sin2pi_pade_05_5_4(T x) {
+	x -= 0.5f;
+	return (T(-6.283185307) * x + T(33.19863968) * simd::pow(x, 3) - T(32.44191367) * simd::pow(x, 5))
+	       / (1 + T(1.296008659) * simd::pow(x, 2) + T(0.7028072946) * simd::pow(x, 4));
+}
+
 class Vco {
 public :
     float process(float,float,float);
@@ -41,10 +48,14 @@ float Vco::process (float phase,float shape, float partials){
     out_sawtooth=0;
     out_square=0;
     for(int i = 0;i<32;i++){
-        out_square += amount[i] * square_coeff[i] * std::cos(2.f* frequencies[i] * M_PI * (phase-0.25f));
+        float p = (phase-0.25f)*frequencies[i]+0.25f;
+        p -= simd::floor(p);
+        out_square += amount[i] * square_coeff[i] * sin2pi_pade_05_5_4(p)
     };
     for(int i = 0;i<32;i++){
-        out_sawtooth += amount[i] * sawtooth_coeff[i] * std::sin(2.f* frequencies[i] * M_PI * phase);
+        float p = phase*frequencies[i];
+        p -= simd::floor(p);
+        out_sawtooth += amount[i] * sawtooth_coeff[i] * sin2pi_pade_05_5_4(p);
     };
 
     // if shape ~ 1.95 and partials low we need to add first harmonic. 
@@ -79,6 +90,11 @@ void Vco::set_amount(float k){
 }
 void Vco::set_pulsewave(float pulsewidth, float partials){
     for(int i=0;i<32;i++){
+
+        /*float p = (i+1.f)*(pulsewidth)/2.f;
+        p -= simd::floor(p);
+        square_coeff[i]=(2.f/((i+1.f)*M_PI))*std::sin(p);*/
+
         square_coeff[i]=(2.f/((i+1.f)*M_PI))*std::sin((i+1.f)*M_PI*(pulsewidth));
         //TODO : formula not working in case of spread/detune : use frequency array 
     }
