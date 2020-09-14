@@ -15,16 +15,21 @@ T sin2pi_pade_05_5_4(T x) {
 class Vco {
 public :
     float process(float,float,float);
+    void set_pitch(float);
     void set_frequencies(float,float);
     void set_amount(float);
     void set_pulsewave(float,float);
+    void set_filter_freq(float);
     void set_filter(float,float,float);
+
+    float phase = 0.f;
+    float freq = 0.f;
     float frequencies[32] = {};
     float amount[32] = {};
     double sawtooth_coeff[32] = {};
     double square_coeff[32] = {};
-    float out_sawtooth=0;
-    float out_square=0;
+    float out_sawtooth = 0.f;
+    float out_square = 0.f;
     Vco();
 
 private:
@@ -38,7 +43,11 @@ Vco::Vco(){
         sawtooth_coeff[i]=(2.f/((i+1.f)*M_PI))*std::pow(-1.f,(i+2.f));
     }
 }
-float Vco::process (float phase,float shape, float partials){
+float Vco::process (float sample_time,float shape, float partials){
+    float deltaPhase = simd::clamp(freq * sample_time, 1e-6f, 0.35f);
+	phase += deltaPhase;
+    phase -= simd::floor(phase);
+
     shape*=1.95f;
     if (shape>1.f){
         set_pulsewave(1.f - 0.5f*shape, partials);
@@ -73,16 +82,15 @@ float Vco::process (float phase,float shape, float partials){
     }
     */
 }
-
-
+void Vco::set_pitch(float freq_voltage){
+    freq = dsp::FREQ_C4 * dsp::approxExp2_taylor5(freq_voltage + 20) / 1048576;
+}
 void Vco::set_frequencies(float spread,float detune){
     frequencies[0] = 1;
     for(int i = 1;i<32;i++){
         frequencies[i] = std::pow(i+1.f,1.f+spread) + std::pow(-1.f,i)*std::pow(i+1.f,2.f+detune)*detune ;
     };
 }
-
-
 void Vco::set_amount(float k){
     for(int i = 0;i<32;i++){
         amount[i] = std::exp(-std::pow((float)(i+1) - 1.f,2)/std::pow(k,4.f)); //
@@ -105,7 +113,6 @@ float Vco::filter_bandpass(float freq, float freq_cut, float q){
     return b0*b1*b2*b3+b4;
 
 }
-
 float Vco::filter_highpass(float freq, float freq_cut, float q){
     if (freq<freq_cut){
         return std::exp(-(1.f+q)*std::pow(freq-freq_cut,2.f));
@@ -120,7 +127,6 @@ float Vco::filter_lowpass(float freq, float freq_cut, float q){
         return 1.f;
     }
 }
-
 float Vco::filter_emulation(float freq, float freq_cut, float q,float shape){
     if (shape<0){
         return filter_bandpass(freq,freq_cut,q)*(1.f-shape*(-1.f+filter_lowpass(freq,freq_cut,q)));
@@ -128,7 +134,9 @@ float Vco::filter_emulation(float freq, float freq_cut, float q,float shape){
         return filter_bandpass(freq,freq_cut,q)*(1.f+shape*(-1.f+filter_highpass(freq,freq_cut,q)));
     }
 }
-
+void Vco::set_filter_freq(float filter_freq_voltage){
+    float filter_frequency = dsp::FREQ_C4 * dsp::approxExp2_taylor5(filter_freq_voltage + 20) / 1048576;
+}
 
 
 void Vco::set_filter(float freq_cut, float q, float shape) {
@@ -177,11 +185,8 @@ struct Additive : Module {
         NUM_OUTPUTS
     };
     enum LightId {
-        //BLINK_LIGHT,
         NUM_LIGHTS
     };
-    float phase = 0.f;
-    float bufferSync = 0.f;
     Vco osc;
     Additive() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -255,40 +260,31 @@ struct Additive : Module {
         detune = simd::clamp(detune + cv_detune/5.f,0.f,1.f);
 
 
-        //filter_freq = simd::clamp(filter_freq + cv_filter_freq/3.5f,-2.f,5.f);
-        //float filter_frequency = dsp::FREQ_C4 * simd::pow(2.f, filter_freq);
+        float freq_voltage = frequency/12.f + dsp::quadraticBipolar(fine)*3.f/12.f + pitch;
         float filter_freq_voltage = frequency/12.f + filter_freq + cv_filter_freq; //filter tuned on oscillator frequency by default
-        float filter_frequency = dsp::FREQ_C4 * dsp::approxExp2_taylor5(filter_freq_voltage + 20) / 1048576;
 
+        //float filter_index_c = filter_frequency/freq;
+        float filter_index_c = 3;
 
-        
-        float freqParam = frequency / 12.f;
-		freqParam += dsp::quadraticBipolar(fine) * 3.f / 12.f;
-        pitch+=freqParam;
-        float freq = dsp::FREQ_C4 * dsp::approxExp2_taylor5(pitch + 20) / 1048576;
-
-        // index of filter cutting frequency f_c
-        float filter_index_c = filter_frequency/freq;
-
-
-        float deltaPhase = simd::clamp(freq * args.sampleTime, 1e-6f, 0.35f);
-		phase += deltaPhase;
-
-        //  sync function
-        if (sync>0.1f && bufferSync>=0 && bufferSync<=0.1f){
+        /*
+        if (sync>0.1f && bufferSync>=0.f && bufferSync<=0.1f){
             phase=0.f;
         }
         bufferSync=sync;
-        
+        TODO : CODE A PROPER FUNCTION FOR SYNC
+        */
 
 
-		phase -= simd::floor(phase);
 
+		//phase -= simd::floor(phase);
+        osc.set_pitch(freq_voltage);
         osc.set_frequencies(spread,detune);
         osc.set_amount(partials);
+        
+        osc.set_filter_freq(filter_freq_voltage);
         osc.set_filter(filter_index_c,filter_q,filter_shape);
 
-        float out = osc.process(phase,shape,partials);
+        float out = osc.process(args.sampleTime,shape,partials);
         outputs[OUTPUT].setVoltage(simd::clamp(out*4.5f,-5.f,5.f));
 
     }
