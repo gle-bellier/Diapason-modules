@@ -185,8 +185,8 @@ struct Additive : Module {
     Vco osc;
     Additive() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		configParam(PITCH_PARAM, -2.f, 2.f, 0.f, "Pitch", " Hz", 2.f, dsp::FREQ_C4);
-		configParam(FINE_PARAM, -100.f, 100.f, 0.f, "Fine","cts");
+		configParam(PITCH_PARAM, -24.f, 24.f, 0.f, "Pitch", " Hz", dsp::FREQ_SEMITONE, dsp::FREQ_C4);
+		configParam(FINE_PARAM, -1.f, 1.f, 0.f, "Fine");
         configParam(PARTIALS_PARAM, 0.f, 1.f, 0.f, "Partials", "");
         
         configParam(SHAPE_PARAM, 0.f, 1.f, 0.f, "Shape", "");
@@ -256,13 +256,20 @@ struct Additive : Module {
         
         detune = simd::clamp(detune + cv_detune/5.f,0.f,1.f);
         filter_freq = simd::clamp(filter_freq + cv_filter_freq/3.5f,-2.f,5.f);
-
-
-
         float filter_frequency = dsp::FREQ_C4 * simd::pow(2.f, filter_freq);
+        
+        
+        float freqParam = frequency / 12.f;
+		freqParam += dsp::quadraticBipolar(fine) * 3.f / 12.f;
+        /*
         pitch += frequency;
 		pitch += fine/1200;
         float freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
+        */
+        pitch+=freqParam;
+        float freq = dsp::FREQ_C4 * dsp::approxExp2_taylor5(pitch + 20) / 1048576;
+        //float freq = dsp::FREQ_C4 * std::pow(2,pitch + 30) / 1073741824;
+
         // index of filter cutting frequency f_c
         float filter_index_c = filter_frequency/freq;
 
