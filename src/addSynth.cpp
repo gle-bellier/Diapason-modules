@@ -193,7 +193,7 @@ struct Additive : Module {
         configParam(SPREAD_PARAM, 0.f, 1.f, 0.f, "Spread", "");
         configParam(DETUNE_PARAM, 0.f, 1.f, 0.f, "Detune", "");
         
-        configParam(FILTER_FREQ_PARAM, -2.f, 5.f, -2.f, "Filter Freq", " Hz", 2.f, dsp::FREQ_C4);
+        configParam(FILTER_FREQ_PARAM, -2.f, 2.f, 0.f, "Filter Frequency", " (r)");
         configParam(FILTER_Q_PARAM, 0.f, 1.f, 0.f, "Resonance", "");
         configParam(FILTER_SHAPE_PARAM, -1.f, 1.f, 0.f, "Filter shape ", "");
 
@@ -252,23 +252,20 @@ struct Additive : Module {
         spread = simd::clamp(spread + cv_spread*mod_spread/5.f,0.f,1.f);
         filter_shape = simd::clamp(filter_shape + cv_filter_shape*mod_filter_shape/5.f,-1.f,1.f);
         filter_q = simd::clamp(filter_q + cv_filter_q*mod_filter_q/5.f,0.f,1.f);
-        
-        
         detune = simd::clamp(detune + cv_detune/5.f,0.f,1.f);
-        filter_freq = simd::clamp(filter_freq + cv_filter_freq/3.5f,-2.f,5.f);
-        float filter_frequency = dsp::FREQ_C4 * simd::pow(2.f, filter_freq);
-        
+
+
+        //filter_freq = simd::clamp(filter_freq + cv_filter_freq/3.5f,-2.f,5.f);
+        //float filter_frequency = dsp::FREQ_C4 * simd::pow(2.f, filter_freq);
+        float filter_freq_voltage = frequency/12.f + filter_freq + cv_filter_freq; //filter tuned on oscillator frequency by default
+        float filter_frequency = dsp::FREQ_C4 * dsp::approxExp2_taylor5(filter_freq_voltage + 20) / 1048576;
+
+
         
         float freqParam = frequency / 12.f;
 		freqParam += dsp::quadraticBipolar(fine) * 3.f / 12.f;
-        /*
-        pitch += frequency;
-		pitch += fine/1200;
-        float freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
-        */
         pitch+=freqParam;
         float freq = dsp::FREQ_C4 * dsp::approxExp2_taylor5(pitch + 20) / 1048576;
-        //float freq = dsp::FREQ_C4 * std::pow(2,pitch + 30) / 1073741824;
 
         // index of filter cutting frequency f_c
         float filter_index_c = filter_frequency/freq;
